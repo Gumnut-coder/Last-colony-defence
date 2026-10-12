@@ -89,6 +89,16 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:3/2;border-radius
 .vb[aria-pressed="true"]{border-color:var(--human);background:#22323a}
 .vb.poor{opacity:.5}
 .vmsg{margin:0;min-height:1.3em;font-size:13px;color:var(--muted)}
+.armoury{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px}
+.build{grid-template-columns:26px minmax(0,1fr);gap:0 5px;padding:5px 6px}
+.build canvas{width:26px;height:26px;grid-row:span 2}
+.build strong{font-size:12px;line-height:1.15;overflow-wrap:break-word}
+.build small{font-size:11px;line-height:1.2}
+.tg{letter-spacing:.04em;text-transform:uppercase;font-size:10px;color:var(--muted)}
+.tg-g{color:var(--sand)}
+.tg-a{color:var(--cryo)}
+#pickInfo{margin:0;font-size:14px;color:var(--muted);min-height:1.4em}
+#pickInfo b{color:var(--human);font-weight:600}
 .build.locked{opacity:.6;cursor:default;border-style:dashed}
 #unitInfo{margin:0;min-width:0}
 #unitInfo b{color:var(--human);font-weight:600}
@@ -131,6 +141,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:3/2;border-radius
   <p id="msg" aria-live="polite"></p>
 
   <div class="armoury" id="armoury"></div>
+  <p id="pickInfo"></p>
 
   <div class="orders">
     <button id="waveBtn" type="button">Send wave 1</button>
@@ -155,7 +166,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:3/2;border-radius
     </div>
   </div>
 
-  <p class="help">There are 200 levels, each with its own road and 10 waves. Clear all 10 to move on. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. You start with 13 weapons and a new one unlocks every 5 levels, 33 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 13, offline edition.</p>
+  <p class="help">There are 200 levels, each with its own road and 10 waves. Clear all 10 to move on. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. You start with 15 weapons and a new one unlocks every 5 levels, 35 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 16, offline edition.</p>
   </div>
 </div>
 
@@ -182,6 +193,8 @@ const T={
   warship:{get name(){return SHIPS[tankTier()];},note:'Water only. Patrols its lake, long-range heavy shells',cost:420,range:5.5,rate:2.2,dmg:120,splash:1.25,naval:1,mode:'lob',look:'ship',col:'#aab7bf'},
   jet:{get name(){return JETS[tankTier()];},note:'Flies the whole map and guns down what it dives at',cost:320,range:2.8,rate:.12,dmg:22,mode:'jet',look:'jet',col:'#e6edf2'},
   tank:{get name(){return TANKS[tankTier()];},note:'Armour-piercing shell with a blast. Drives around its post',cost:240,range:3,rate:1.3,dmg:58,splash:.7,pierce:1,move:1,mode:'hit',look:'tank',col:'#c9d2a8',rw:4,rl:.1,rc:C.human},
+  flak:{name:'Flak Gun',note:'Bursts of shrapnel among flyers',cost:90,range:3.3,rate:.6,dmg:24,splash:.8,mode:'hit',look:'barrel',col:'#b0c4d0',bl:26,bw:4,rw:3,rl:.1,rc:C.volt},
+  sam:{name:'SAM Site',note:'Homing missiles, very long reach',cost:180,range:5.5,rate:1.7,dmg:85,splash:.6,mode:'homing',look:'box',col:'#9be15d'},
   shotgun:{lvl:5,name:'Scattergun',note:'Hits 3 aliens per shot',cost:75,range:1.9,rate:.7,dmg:10,multi:3,mode:'hit',look:'barrel',col:'#e0c9a0',bl:19,bw:7,rc:C.human},
   poison:{lvl:10,name:'Venom Sprayer',note:'Long-lasting poison cloud',cost:110,range:1.9,rate:.8,dmg:2,burn:8,burnT:4,mode:'aura',look:'barrel',col:'#9be15d',bl:20,bw:6,fan:1},
   sniper:{lvl:15,name:'Sniper Nest',note:'Huge range, pierces armour',cost:230,range:6,rate:3,dmg:170,pierce:1,mode:'hit',look:'barrel',col:C.white,bl:34,bw:3,rw:3,rl:.2},
@@ -210,18 +223,31 @@ const SHIPS=['USS Monitor','USS Maine','USS Olympia','USS Connecticut','USS Texa
 const GEN={tank:TANKS,jet:JETS,warship:SHIPS};
 function tierAt(l){return Math.min(TANKS.length-1,Math.floor(l/5));}
 function tankTier(){return typeof S==='undefined'||!S?0:S.vs?4:tierAt(S.level);}
+/* What each weapon can shoot at: ground aliens, flying aliens (wasps, dropships), or both. Anything not listed hits both. */
+const GROUND_ONLY=['mortar','cluster','flame','poison','inferno','cryo','blizzard','stun','acid','tank','warship','nuke','lance'],AIR_ONLY=['flak','sam'];
+for(const k of GROUND_ONLY)T[k].hits='g';for(const k of AIR_ONLY)T[k].hits='a';
+const canHit=(b,e)=>b.hits==='g'?!A[e.type].fly:b.hits==='a'?!!A[e.type].fly:true;
+const hitsLabel=b=>b.hits==='g'?'Ground only':b.hits==='a'?'Air only':'Ground and air';
+const hitsShort=b=>b.hits==='g'?'Ground':b.hits==='a'?'Air':'Ground+Air';
 const TKEYS=Object.keys(T);
 const unlockedAt=l=>TKEYS.filter(k=>(T[k].lvl||0)<=l);
 const nextUnlock=l=>TKEYS.find(k=>(T[k].lvl||0)>l);
 const A={
-  crawler:{hp:30,speed:1.0,reward:6,armor:0,leak:1,r:13,col:C.alien},
-  runner:{hp:18,speed:1.9,reward:5,armor:0,leak:1,r:9,col:C.violet},
-  brute:{hp:140,speed:.6,reward:16,armor:3,leak:2,r:19,col:C.brute},
-  queen:{hp:900,speed:.45,reward:100,armor:5,leak:5,r:26,col:C.alien}
+  crawler:{nm:'crawler',hp:30,speed:1.0,reward:6,armor:0,leak:1,r:13,col:C.alien},
+  runner:{nm:'runner',hp:18,speed:1.9,reward:5,armor:0,leak:1,r:9,col:C.violet},
+  brute:{nm:'brute',hp:140,speed:.6,reward:16,armor:3,leak:2,r:19,col:C.brute},
+  queen:{nm:'queen',hp:900,speed:.45,reward:100,armor:5,leak:5,r:26,col:C.alien,last:1},
+  swarm:{nm:'swarmling',hp:9,speed:1.5,reward:2,armor:0,leak:1,r:7,col:'#ff8fb3'},
+  wasp:{nm:'wasp',hp:26,speed:1.5,reward:8,armor:0,leak:1,r:11,col:'#ffd84d',fly:1},
+  shell:{nm:'shellback',hp:110,speed:.75,reward:14,armor:8,leak:2,r:16,col:'#7a5cff'},
+  mender:{nm:'mender',hp:70,speed:.8,reward:14,armor:0,leak:1,r:13,col:'#5ae0a0',heal:1},
+  brood:{nm:'brood mother',hp:120,speed:.7,reward:12,armor:1,leak:2,r:18,col:'#c7407a',split:3},
+  carrier:{nm:'dropship',hp:160,speed:.7,reward:20,armor:2,leak:3,r:20,col:'#6fd3c7',fly:1,drop:3,dropN:2},
+  titan:{nm:'titan',hp:2600,speed:.35,reward:260,armor:8,leak:10,r:32,col:'#8e2a52',boss:1,last:1}
 };
 /* Level scaling: alien health grows a little faster than your income */
 const Lf=l=>1+LK*(l-1),Rf=l=>Math.pow(Lf(l),RK);
-let LK=.1,RK=.68,HX=6,CM=2.2,HM=1.6,RM=.7,SC=1.5;
+let LK=.1,RK=.68,HX=4,CM=1.8,HM=1.4,RM=.75,SC=1.5;
 const startCredits=l=>Math.round(220*(1+(SC-1)*Math.min(1,l/50))*Rf(l)*Math.sqrt(1+HX*Math.max(0,l-100)/100));
 
 /* Road: a new layout for every level, generated from the level number */
@@ -296,36 +322,45 @@ function mkTower(type,c,r){return{type,c,r,x:(c+.5)*CELL,y:(r+.5)*CELL,guns:1,sc
 function say(m){$('msg').textContent=m;msgT=3.5;}
 
 
-function counts(l,w){return{
-  crawler:Math.round(CM*(5+w+Math.min(10,Math.floor(l/10)))),
-  runner:w>=3?Math.round(CM*(w+Math.min(10,Math.floor(l/8)))):0,
-  brute:w>=5?Math.round(CM*(Math.floor((w-3)/2)+Math.min(8,Math.floor(l/12)))):0,
-  queen:w===WPL?1+Math.min(3,Math.floor(l/25)):(w===5&&l>=10?1:0)};}
+/* Wave make-up. New alien types join as the level number rises:
+   swarmlings from level 1, wasps (fly straight over the map) from 2, shellbacks (heavy armour) from 3,
+   menders (heal neighbours) from 4, dropships (fly over and drop swarmlings onto the nearest road) from 5,
+   brood mothers (burst into swarmlings) from 6, titans (boss) from 10. */
+function counts(l,w){const R=x=>Math.round(CM*x),f=Math.floor,m=Math.min;return{
+  crawler:R(5+w+m(10,f(l/10))),
+  swarm:w>=2?R(3+w):0,
+  runner:w>=3?R(w+m(10,f(l/8))):0,
+  wasp:l>=2&&w>=4?R(1+f(w/3)+m(6,f(l/15))):0,
+  brute:w>=5?R(f((w-3)/2)+m(8,f(l/12))):0,
+  mender:l>=4&&w>=5?1+f(w/5)+m(3,f(l/30)):0,
+  shell:l>=3&&w>=6?R(1+f((w-6)/2)+m(5,f(l/20))):0,
+  brood:l>=6&&w>=7?1+f((w-7)/2)+m(4,f(l/25)):0,
+  carrier:l>=5&&w>=6?1+f((w-6)/2)+m(3,f(l/30)):0,
+  queen:w===WPL?1+m(3,f(l/25)):(w===5&&l>=10?1:0),
+  titan:l>=10&&w===WPL?1+m(2,f(l/60)):0};}
 const hpScale=(l,w)=>HM*Lf(l)*(1+HX*Math.max(0,l-100)/100)*(1+.2*(w-1));
 function waveList(l,w){
-  const n=counts(l,w),a=[];for(let i=0;i<n.crawler;i++)a.push('crawler');
-  const ins=(type,k)=>{for(let i=0;i<k;i++)a.splice(Math.floor(Math.random()*(a.length+1)),0,type);};
-  ins('runner',n.runner);ins('brute',n.brute);
-  for(let i=0;i<n.queen;i++)a.push('queen');
-  return a;
+  const n=counts(l,w),a=[],end=[];
+  for(const k in n){if(A[k].last){for(let i=0;i<n[k];i++)end.push(k);}else if(!a.length){for(let i=0;i<n[k];i++)a.push(k);}else{for(let i=0;i<n[k];i++)a.splice(Math.floor(Math.random()*(a.length+1)),0,k);}}
+  return a.concat(end);
 }
 function waveSummary(l,w){
   const base=counts(l,w);
-  return Object.keys(base).filter(k=>base[k]).map(k=>base[k]+' '+k+(base[k]>1?'s':'')).join(', ')+'. Toughness ×'+(hpScale(l,w)/HM).toFixed(1);
+  return Object.keys(base).filter(k=>base[k]).map(k=>base[k]+' '+A[k].nm+(base[k]>1?'s':'')+(A[k].fly?' (air)':'')).join(', ')+'. Toughness ×'+(hpScale(l,w)/HM).toFixed(1);
 }
 function startWave(){
   if(S.active||S.over||S.wave>=WPL)return;
   S.wave++;S.queue=waveList(S.level,S.wave);S.gap=Math.max(.22,(.85-S.wave*.03-S.level*.002)/Math.sqrt(CM));S.spawnT=.4;S.active=true;
-  say(S.queue.indexOf('queen')>=0?'Wave '+S.wave+'. A queen is coming.':'Wave '+S.wave+' incoming.');sfx(220,.3,'sawtooth',.05);
+  say(S.queue.indexOf('titan')>=0?'Wave '+S.wave+'. A titan is coming.':S.queue.indexOf('queen')>=0?'Wave '+S.wave+'. A queen is coming.':'Wave '+S.wave+' incoming.');sfx(220,.3,'sawtooth',.05);
 }
-function spawn(q){
-  const type=q.type||q,d=A[type],hp=Math.round(d.hp*(q.m||hpScale(S.level,S.wave))),p=pointAt(0);
-  S.enemies.push({type,d:0,hp,max:hp,armor:d.armor?d.armor+Math.floor(S.level/10):0,slowT:0,slowF:1,x:p.x,y:p.y,a:p.a,wob:Math.random()*6,dead:false});
+function spawn(q,d0,m0){
+  const type=q.type||q,d=A[type],m=m0||q.m||hpScale(S.level,S.wave),hp=Math.max(1,Math.round(d.hp*m)),p=pointAt(d0||0);
+  S.enemies.push({type,m,d:d0||0,hp,max:hp,armor:d.armor?d.armor+Math.floor(S.level/10):0,slowT:0,slowF:1,x:p.x,y:p.y,a:p.a,wob:Math.random()*6,dead:false});
 }
 function hurt(e,dmg,pierce){
   if(e.dead)return;
   e.hp-=pierce?dmg:Math.max(1,dmg-e.armor);
-  if(e.hp<=0){e.dead=true;S.money+=Math.max(1,Math.round(A[e.type].reward*Rf(S.level)*(S.vs?1:RM)));burst(e.x,e.y,A[e.type].col,e.type==='queen'?26:9);sfx(e.type==='queen'?90:160,.18,'triangle',.05);}
+  if(e.hp<=0){e.dead=true;if(A[e.type].split&&!e.fly){for(let i=0;i<A[e.type].split;i++)spawn('swarm',Math.max(0,e.d-i*14),e.m);}S.money+=Math.max(1,Math.round(A[e.type].reward*Rf(S.level)*(S.vs?1:RM)));burst(e.x,e.y,A[e.type].col,e.type==='queen'?26:9);sfx(e.type==='queen'?90:160,.18,'triangle',.05);}
 }
 /* Boats, warships and tanks drift between free neighbouring cells of their own terrain */
 function roam(t,dt,sp,maxD){
@@ -374,13 +409,13 @@ function drawJet(g,t){
 }
 /* Apply one weapon hit and its side effects to one alien */
 function fx(e,b,guns,dmg){
-  if(e.dead)return;
+  if(e.dead||!canHit(b,e))return;
   if(b.shred)e.armor=Math.max(0,e.armor-b.shred*guns);
   hurt(e,dmg,b.pierce);
   if(e.dead)return;
-  if(b.slow){const f=Math.max(.2,b.slow-.07*(guns-1));e.slowF=e.slowT>0?Math.min(e.slowF,f):f;e.slowT=b.slowT||1.8;}
+  if(b.slow){const f=Math.max(A[e.type].boss?.6:.2,b.slow-.07*(guns-1));e.slowF=e.slowT>0?Math.min(e.slowF,f):f;e.slowT=b.slowT||1.8;}
   if(b.burn){const v=b.burn*guns;e.burn=e.burnT>0?Math.max(e.burn,v):v;e.burnT=b.burnT||2;}
-  if(b.stun&&!(e.stunCd>0)){e.stunT=b.stun*(e.type==='queen'?.5:1);e.stunCd=e.stunT+2;}
+  if(b.stun&&!(e.stunCd>0)){e.stunT=b.stun*(e.type==='queen'||A[e.type].boss?.5:1);e.stunCd=e.stunT+2;}
 }
 function blast(s){
   const b=T[s.type];
@@ -398,7 +433,7 @@ function fire(t,st,tg,inR){
     else{S.shots.push({k:'ring',x:t.x,y:t.y,r:st.range,col:b.col,life:.35,max:.35});sfx(b.stun?300:900,.12,'sine',.025);}
   }else if(b.mode==='chain'){
     const hit=[tg],pts=[{x:t.x,y:t.y},{x:tg.x,y:tg.y}];let cur=tg;fx(tg,b,g,st.dmg);
-    for(let i=0;i<b.chain;i++){let nx=null,nd=1.7*CELL;for(const e of S.enemies){if(e.dead||hit.indexOf(e)>=0)continue;const d=Math.hypot(e.x-cur.x,e.y-cur.y);if(d<nd){nd=d;nx=e;}}
+    for(let i=0;i<b.chain;i++){let nx=null,nd=1.7*CELL;for(const e of S.enemies){if(e.dead||!canHit(b,e)||hit.indexOf(e)>=0)continue;const d=Math.hypot(e.x-cur.x,e.y-cur.y);if(d<nd){nd=d;nx=e;}}
       if(!nx)break;hit.push(nx);pts.push({x:nx.x,y:nx.y});fx(nx,b,g,st.dmg);cur=nx;}
     S.shots.push({k:'bolt',pts,col:b.col,life:.16,max:.16});sfx(1800,.1,'square',.02);
   }else if(b.mode==='lob'){
@@ -434,8 +469,17 @@ function step(dt){
     if(e.stunCd>0)e.stunCd-=dt;
     let f=e.slowT>0?e.slowF:1;if(e.slowT>0)e.slowT-=dt;
     if(e.stunT>0){e.stunT-=dt;f=0;}
-    e.d+=A[e.type].speed*CELL*f*dt;e.wob+=dt*10*f;
-    const p=pointAt(e.d);e.x=p.x;e.y=p.y;e.a=p.a;
+    const ad=A[e.type];
+    if(ad.fly){const s0=PTS[0],s1=PTS[PTS.length-1],fl=Math.hypot(s1.x-s0.x,s1.y-s0.y)||1;e.d+=ad.speed*CELL*f*dt*TOTAL/fl;e.wob+=dt*24;
+      const k=Math.min(1,e.d/TOTAL);e.x=s0.x+(s1.x-s0.x)*k;e.y=s0.y+(s1.y-s0.y)*k+Math.sin(e.wob*.25)*6;e.a=Math.atan2(s1.y-s0.y,s1.x-s0.x);}
+    else{e.d+=ad.speed*CELL*f*dt;e.wob+=dt*10*f;const p=pointAt(e.d);e.x=p.x;e.y=p.y;e.a=p.a;}
+    if(ad.drop){if(e.dropT==null)e.dropT=ad.drop*.6;e.dropT-=dt;
+      if(e.dropT<=0&&e.d<TOTAL*.9){e.dropT=ad.drop;let nd=0,best=1e9;for(let q=0;q<=TOTAL;q+=16){const pt=pointAt(q),dd=Math.hypot(pt.x-e.x,pt.y-e.y);if(dd<best){best=dd;nd=q;}}
+        const lp=pointAt(nd);for(let i=0;i<ad.dropN;i++)spawn('swarm',Math.max(0,nd-i*12),e.m);
+        S.shots.push({k:'ray',x:e.x,y:e.y,tx:lp.x,ty:lp.y,col:ad.col,w:5,life:.35,max:.35});S.shots.push({k:'ring',x:lp.x,y:lp.y,r:26,col:ad.col,life:.4,max:.4});sfx(300,.2,'sine',.03);}}
+    if(ad.heal){e.healT=(e.healT||0)-dt;if(e.healT<=0){e.healT=.6;let any=false;
+      for(const o of S.enemies){if(o!==e&&!o.dead&&o.hp<o.max&&Math.hypot(o.x-e.x,o.y-e.y)<=1.6*CELL){o.hp=Math.min(o.max,o.hp+o.max*.04);any=true;}}
+      if(any)S.shots.push({k:'ring',x:e.x,y:e.y,r:1.6*CELL,col:ad.col,life:.4,max:.4});}}
     if(e.d>=TOTAL){e.dead=true;S.lives=Math.max(0,S.lives-A[e.type].leak);burst(e.x,e.y,C.white,8);sfx(110,.35,'sawtooth',.06);}
   }
   for(const t of S.towers){
@@ -444,7 +488,7 @@ function step(dt){
     if(tb.mode==='jet'){fly(t,tb,dt);continue;}
     t.cd-=dt;if(t.cd>0)continue;
     const st=stats(t);let tg=null;const inR=[];
-    for(const e of S.enemies){if(e.dead)continue;const dx=e.x-t.x,dy=e.y-t.y;if(dx*dx+dy*dy<=st.range*st.range){inR.push(e);if(!tg||e.d>tg.d)tg=e;}}
+    for(const e of S.enemies){if(e.dead||!canHit(tb,e))continue;const dx=e.x-t.x,dy=e.y-t.y;if(dx*dx+dy*dy<=st.range*st.range){inR.push(e);if(!tg||e.d>tg.d)tg=e;}}
     if(!tg)continue;
     t.cd=st.rate;fire(t,st,tg,inR);
   }
@@ -534,18 +578,24 @@ function drawAlien(e){
   const d=A[e.type],r=d.r,g=ctx;
   g.save();g.translate(e.x,e.y);g.rotate(e.a);
   g.strokeStyle=d.col;g.lineWidth=e.type==='runner'?2:3;g.lineCap='round';
-  for(let i=-1;i<=1;i++){const sw=Math.sin(e.wob+i*2)*r*.25;
+  if(d.drop){g.fillStyle='rgba(0,0,0,.22)';g.beginPath();g.ellipse(6,16,r*1.5,r*1.05,0,0,6.283);g.fill();g.fillStyle='#3f8f86';g.beginPath();g.ellipse(0,0,r*1.55,r*1.15,0,0,6.283);g.fill();g.fillStyle=C.volt;for(let i=0;i<6;i++){const q=i*1.047+e.wob*.08;dot(g,Math.cos(q)*r*1.3,Math.sin(q)*r*.95,2.2);}}
+  else if(d.fly){g.fillStyle='rgba(243,237,226,.45)';const fl=Math.sin(e.wob)*.35;g.beginPath();g.ellipse(-2,-r*.9,r*.9,r*.4,-.5+fl,0,6.283);g.ellipse(-2,r*.9,r*.9,r*.4,.5-fl,0,6.283);g.fill();g.fillStyle=d.col;g.beginPath();g.moveTo(-r*1.1,0);g.lineTo(-r*1.9,-2);g.lineTo(-r*1.9,2);g.fill();}
+  else for(let i=-1;i<=1;i++){const sw=Math.sin(e.wob+i*2)*r*.25;
     g.beginPath();g.moveTo(i*r*.5,-r*.5);g.lineTo(i*r*.6+sw,-r*1.35);g.stroke();
     g.beginPath();g.moveTo(i*r*.5,r*.5);g.lineTo(i*r*.6-sw,r*1.35);g.stroke();}
-  if(e.type==='queen'){g.fillStyle=C.violet;for(let i=0;i<5;i++){const a=-1.1+i*.55;g.beginPath();g.moveTo(Math.cos(a+3.14)*r*.7,Math.sin(a+3.14)*r*.7);g.lineTo(Math.cos(a+3.14)*r*1.5,Math.sin(a+3.14)*r*1.5);g.lineTo(Math.cos(a+3.34)*r*.7,Math.sin(a+3.34)*r*.7);g.fill();}}
+  if(e.type==='queen'||e.type==='titan'){g.fillStyle=e.type==='titan'?C.flame:C.violet;for(let i=0;i<5;i++){const a=-1.1+i*.55;g.beginPath();g.moveTo(Math.cos(a+3.14)*r*.7,Math.sin(a+3.14)*r*.7);g.lineTo(Math.cos(a+3.14)*r*1.5,Math.sin(a+3.14)*r*1.5);g.lineTo(Math.cos(a+3.34)*r*.7,Math.sin(a+3.34)*r*.7);g.fill();}}
   g.fillStyle=d.col;g.beginPath();
   if(e.type==='runner'){g.moveTo(r*1.4,0);g.lineTo(-r,-r*.8);g.lineTo(-r*.5,0);g.lineTo(-r,r*.8);g.closePath();}
   else g.ellipse(0,0,r*1.15,r*.85,0,0,6.283);
   g.fill();
-  if(e.type==='brute'||e.type==='queen'){g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=3;g.beginPath();g.arc(-r*.2,0,r*.55,-1.2,1.2);g.stroke();}
+  if(d.armor>=3){g.strokeStyle='rgba(0,0,0,.35)';g.lineWidth=3;g.beginPath();g.arc(-r*.2,0,r*.55,-1.2,1.2);g.stroke();}
   if(e.burnT>0){g.fillStyle=C.flame;dot(g,-r*.2,0,Math.max(2.5,r*.22));}
   if(e.stunT>0){g.strokeStyle=C.volt;g.lineWidth=2;g.setLineDash([3,3]);g.beginPath();g.arc(0,0,r*1.4,0,6.283);g.stroke();g.setLineDash([]);}
   if(e.slowT>0){g.strokeStyle=C.cryo;g.lineWidth=2;g.beginPath();g.ellipse(0,0,r*1.25,r*.95,0,0,6.283);g.stroke();}
+  if(d.drop){g.fillStyle='rgba(127,227,255,.75)';dot(g,-r*.1,0,r*.5);}
+  if(d.heal){g.fillStyle=C.white;g.fillRect(-r*.55,-r*.15,r*.7,r*.3);g.fillRect(-r*.35,-r*.4,r*.3,r*.8);}
+  if(d.split){g.fillStyle='#ff8fb3';dot(g,-r*.45,-r*.3,r*.17);dot(g,-r*.1,r*.35,r*.17);dot(g,-r*.6,r*.25,r*.14);}
+  if(e.type==='shell'){g.strokeStyle=C.white;g.lineWidth=1.5;g.beginPath();g.arc(-r*.1,0,r*.75,-1.3,1.3);g.stroke();}
   g.fillStyle=C.eye;g.beginPath();g.arc(r*.6,-r*.3,Math.max(2,r*.16),0,6.283);g.arc(r*.6,r*.3,Math.max(2,r*.16),0,6.283);g.fill();
   g.restore();
   if(e.hp<e.max){const w=Math.max(22,r*2);g.fillStyle='rgba(0,0,0,.55)';g.fillRect(e.x-w/2,e.y-r-13,w,4);g.fillStyle=C.eye;g.fillRect(e.x-w/2,e.y-r-13,w*Math.max(0,e.hp/e.max),4);}
@@ -613,10 +663,11 @@ function hud(){
   $('autoBtn').textContent='Auto-send: '+(S.auto?'on':'off');$('muteBtn').textContent='Sound: '+(muted?'off':'on');
   $('next').textContent=S.over?'':(S.active?'Now: ':'Next: ')+waveSummary(S.level,S.active?S.wave:nw);
   for(const b of document.querySelectorAll('.build[data-t]')){const k=b.dataset.t;b.setAttribute('aria-pressed',String(k===pick));b.classList.toggle('poor',S.money<T[k].cost);}
+  $('pickInfo').innerHTML=T[pick]?'<b>'+T[pick].name+'</b> · '+T[pick].cost+' credits · '+hitsLabel(T[pick])+' · '+T[pick].note:'';
   const info=$('unitInfo');$('mods').hidden=!sel;
   if(!sel){info.textContent='Tap a tower to modify it: add guns, fit a scope or loader, or change what it does.';return;}
   const st=stats(sel);
-  info.innerHTML='<b>'+T[sel.type].name+'</b> with '+sel.guns+(sel.guns>1?' guns':' gun')+'. '+T[sel.type].note+(GEN[sel.type]?'. Generation '+(tankTier()+1)+' of '+TANKS.length:'')+'. Damage '+Math.round(st.dmg*10)/10+' a shot'+(rank(S.level)?' (includes +'+Math.round(RANK*rank(S.level)*100)+'% armoury rank)':'')+', range '+(st.range/CELL).toFixed(1)+', fires every '+st.rate.toFixed(2)+'s.';
+  info.innerHTML='<b>'+T[sel.type].name+'</b> with '+sel.guns+(sel.guns>1?' guns':' gun')+'. '+hitsLabel(T[sel.type])+'. '+T[sel.type].note+(GEN[sel.type]?'. Generation '+(tankTier()+1)+' of '+TANKS.length:'')+'. Damage '+Math.round(st.dmg*10)/10+' a shot'+(rank(S.level)?' (includes +'+Math.round(RANK*rank(S.level)*100)+'% armoury rank)':'')+', range '+(st.range/CELL).toFixed(1)+', fires every '+st.rate.toFixed(2)+'s.';
   const set=(id,label,lvl,max,cost)=>{const b=$(id);if(lvl>=max){b.textContent=label+': full';b.disabled=true;}else{b.textContent=label+' ('+cost+')';b.disabled=S.money<cost;}};
   set('gunBtn','Add gun, +'+T[sel.type].dmg+' damage',sel.guns,MAXG,gunCost(sel));
   set('scopeBtn','Scope, +range',sel.scope,MAXM,scopeCost(sel));
@@ -651,9 +702,9 @@ function buy(cost,fn){if(!sel||S.over||S.money<cost)return;S.money-=cost;sel.spe
 function choose(k){pick=k;sel=null;}
 function renderArmoury(){
   const box=$('armoury'),nx=nextUnlock(S.level);
-  box.innerHTML=unlockedAt(S.level).map(k=>'<button type="button" class="build" id="build-'+k+'" data-t="'+k+'" aria-pressed="false"><canvas width="80" height="80" aria-hidden="true"></canvas><strong>'+T[k].name+' <span class="cost">'+T[k].cost+'</span></strong><small>'+T[k].note+'</small></button>').join('')
-    +(nx?'<button type="button" class="build locked" id="build-locked" disabled><canvas width="80" height="80" aria-hidden="true"></canvas><strong>'+T[nx].name+'</strong><small>Unlocks at level '+T[nx].lvl+'</small></button>':'');
-  for(const b of box.querySelectorAll('.build')){const k=b.dataset.t||nx;drawTower(b.querySelector('canvas').getContext('2d'),k,40,40,-.6,1,1.45,0,0);}
+  box.innerHTML=unlockedAt(S.level).map(k=>'<button type="button" class="build" id="build-'+k+'" data-t="'+k+'" aria-pressed="false" title="'+T[k].name+'. '+hitsLabel(T[k])+'. '+T[k].note+'"><canvas width="64" height="64" aria-hidden="true"></canvas><strong>'+T[k].name+'</strong><small><span class="cost">'+T[k].cost+'</span> <span class="tg tg-'+(T[k].hits||'b')+'">'+hitsShort(T[k])+'</span></small></button>').join('')
+    +(nx?'<button type="button" class="build locked" id="build-locked" disabled><canvas width="64" height="64" aria-hidden="true"></canvas><strong>'+T[nx].name+'</strong><small>Level '+T[nx].lvl+'</small></button>':'');
+  for(const b of box.querySelectorAll('.build')){const k=b.dataset.t||nx;drawTower(b.querySelector('canvas').getContext('2d'),k,32,32,-.6,1,1.2,0,0);}
   hudKey='';
 }
 $('armoury').addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.build');if(!b||!b.dataset.t)return;wakeAudio();choose(b.dataset.t);});
@@ -702,12 +753,12 @@ function frame(ts){
 }
 let failed=false;
 function fail(where,e){if(failed)return;failed=true;const m=$(mode==='versus'?'vsStatus':'msg');m.style.color=C.alien;m.textContent='Game error in '+where+' (build '+BUILD+'): '+(e&&e.message||e);}
-const BUILD=13;
+const BUILD=16;
 window.addEventListener('error',e=>fail('page',e.error||e.message));
 /* ---------- Two-player versus: two boards on one screen ---------- */
 let mode='campaign',camp=null,VS=null;
 const VSW=TKEYS.filter(k=>!T[k].lvl);
-const SEND={crawler:{name:'Crawler',cost:15,inc:2},runner:{name:'Runner',cost:25,inc:3},brute:{name:'Brute',cost:70,inc:8},queen:{name:'Queen',cost:400,inc:40}};
+const SEND={crawler:{name:'Crawler',cost:15,inc:2},runner:{name:'Runner',cost:25,inc:3},brute:{name:'Brute',cost:70,inc:8},wasp:{name:'Wasp',cost:40,inc:4},shell:{name:'Shellback',cost:90,inc:10},carrier:{name:'Dropship',cost:120,inc:12},queen:{name:'Queen',cost:400,inc:40}};
 function campaignS(){return mode==='versus'&&camp?camp.S:S;}
 function use(b){S=b.S;PTS=b.PTS;SEG=b.SEG;TOTAL=b.TOTAL;road=b.road;water=b.water;cv=b.cv;ctx=b.ctx;sel=b.sel;pick=b.pick;hover=null;}
 function vsMsg(b,t){b.msg.textContent=t;}
@@ -715,7 +766,7 @@ function vsBoard(n){
   const el=document.createElement('div');el.className='vp';el.id='vp'+n;
   el.innerHTML='<div class="vphead"><h2>Player '+n+'</h2><span>Credits <b class="m">0</b></span><span>Income <b class="i">0</b></span><span>Colonists <b class="l">20</b></span></div>'
     +'<canvas class="vf" aria-label="Player '+n+' battlefield"></canvas>'
-    +'<div class="vrow">'+VSW.map(k=>'<button type="button" class="vb" id="vp'+n+'-pick-'+k+'" data-act="pick" data-k="'+k+'" aria-pressed="false" title="'+T[k].name+'. '+T[k].note+'"><canvas width="64" height="64" aria-hidden="true"></canvas><small>'+T[k].cost+'</small></button>').join('')+'</div>'
+    +'<div class="vrow">'+VSW.map(k=>'<button type="button" class="vb" id="vp'+n+'-pick-'+k+'" data-act="pick" data-k="'+k+'" aria-pressed="false" title="'+T[k].name+'. '+hitsLabel(T[k])+'. '+T[k].note+'"><canvas width="64" height="64" aria-hidden="true"></canvas><small>'+T[k].cost+'</small></button>').join('')+'</div>'
     +'<div class="vrow">'+[['gun','Gun'],['scope','Scope'],['load','Loader'],['sell','Sell']].map(x=>'<button type="button" class="vb" id="vp'+n+'-'+x[0]+'" data-act="'+x[0]+'" disabled>'+x[1]+'</button>').join('')+'</div>'
     +'<div class="vrow"><span class="lbl">Send to rival</span>'+Object.keys(SEND).map(k=>'<button type="button" class="vb" id="vp'+n+'-send-'+k+'" data-act="send" data-k="'+k+'">'+SEND[k].name+'<small>'+SEND[k].cost+', income +'+SEND[k].inc+'</small></button>').join('')+'</div>'
     +'<p class="vmsg" aria-live="polite"></p>';
@@ -769,7 +820,7 @@ function vsAct(b,d){
   wakeAudio();if(VS.over||VS.paused)return;
   const s=b.S,t=b.sel;
   const pay=(cost,fn)=>{if(s.money<cost){vsMsg(b,'Not enough credits ('+cost+' needed).');return;}s.money-=cost;t.spent+=cost;fn();sfx(660,.12,'triangle',.04);};
-  if(d.act==='pick'){b.pick=d.k;b.sel=null;vsMsg(b,T[d.k].name+': '+T[d.k].note+'.');}
+  if(d.act==='pick'){b.pick=d.k;b.sel=null;vsMsg(b,T[d.k].name+' ('+hitsLabel(T[d.k]).toLowerCase()+'): '+T[d.k].note+'.');}
   else if(d.act==='send'){
     const c=SEND[d.k],o=VS.boards[b.n===1?1:0];
     if(s.money<c.cost){vsMsg(b,'Not enough credits to send a '+c.name+' ('+c.cost+').');return;}
