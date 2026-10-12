@@ -11,6 +11,7 @@
 <meta name="theme-color" content="#0f171c">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
 <style>:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -110,7 +111,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
 .side .lbl{grid-column:1/-1;margin:2px 0 0}
 #unitInfo{grid-column:1/-1;font-size:13px;color:var(--muted);line-height:1.3}
 #next{grid-column:1/-1;font-size:13px;line-height:1.3;margin-top:2px}
-@media (max-width:760px){
+@media (max-width:900px){
   .board{grid-template-columns:minmax(0,1fr)}
   .board .stage{order:-1}
   .side,.side .mods{grid-template-columns:repeat(auto-fill,minmax(68px,1fr))}
@@ -182,7 +183,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
 
   <div class="armoury" id="armoury"></div>
 
-  <p class="help">There are 200 levels, each with its own road and 10 waves. Clear all 10 to move on. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. You start with 15 weapons and a new one unlocks every 5 levels, 35 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 19, offline edition.</p>
+  <p class="help">There are 200 levels, each with its own road and 10 waves. Clear all 10 to move on. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. You start with 15 weapons and a new one unlocks every 5 levels, 35 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 20, offline edition.</p>
   </div>
 </div>
 
@@ -772,7 +773,7 @@ function frame(ts){
 }
 let failed=false;
 function fail(where,e){if(failed)return;failed=true;const m=$(mode==='versus'?'vsStatus':'msg');m.style.color=C.alien;m.textContent='Game error in '+where+' (build '+BUILD+'): '+(e&&e.message||e);}
-const BUILD=19;
+const BUILD=20;
 window.addEventListener('error',e=>fail('page',e.error||e.message));
 /* ---------- Two-player versus: two boards on one screen ---------- */
 let mode='campaign',camp=null,VS=null;
