@@ -43,7 +43,14 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(24px,5vw,36px);lin
 canvas#field{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius:6px;border:1px solid var(--line);touch-action:manipulation;cursor:crosshair;background:#22323a}
 #end{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:16px;background:rgba(15,23,28,.86);border-radius:6px}
 #end h2{font-family:var(--display);font-weight:400;font-size:clamp(26px,6vw,44px);margin:0;text-transform:uppercase;letter-spacing:.04em}
-#end p{margin:0;max-width:40ch;color:var(--muted)}
+#end p{margin:0;max-width:52ch;color:var(--muted)}
+#end{overflow-y:auto}
+#endStars{font-size:clamp(26px,5vw,40px);letter-spacing:.12em;color:var(--human);line-height:1}
+#rewards{display:flex;flex-direction:column;align-items:center;gap:8px}
+#rewards .rwl{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;color:var(--human);font-weight:600}
+.rwb{display:flex;flex-direction:column;align-items:center;gap:2px;width:150px;padding:9px 10px;border-color:var(--human)}
+.rwb b{color:var(--human);font-weight:600}
+.rwb small{font-size:12px;color:var(--muted);line-height:1.25}
 #msg{min-height:1.4em;margin:0;color:var(--muted);font-size:15px}
 .armoury{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 @media (max-width:620px){.armoury{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -130,6 +137,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
       <div class="stat"><span>Wave</span><b id="wave">0 / 10</b></div>
       <div class="stat"><span>Credits</span><b id="money">0</b></div>
       <div class="stat"><span>Colonists</span><b id="lives">20</b></div>
+      <div class="stat"><span>Stars</span><b id="starsTotal">0</b></div>
     </div>
     <button id="modeBtn" type="button">Two-player versus</button>
   </header>
@@ -162,7 +170,9 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
       <canvas id="field" aria-label="Battlefield. Aliens march along the sand road toward the colony dome on the right."></canvas>
       <div id="end" hidden>
         <h2 id="endTitle"></h2>
+        <div id="endStars" hidden></div>
         <p id="endText"></p>
+        <div id="rewards" hidden></div>
         <button id="again" type="button">Play again</button>
         <button id="over2" type="button" hidden>Start from level 1</button>
       </div>
@@ -183,7 +193,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
 
   <div class="armoury" id="armoury"></div>
 
-  <p class="help">There are 200 levels, each with its own road and 10 waves. Clear all 10 to move on. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. You start with 15 weapons and a new one unlocks every 5 levels, 35 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 20, offline edition.</p>
+  <p class="help">There are 200 levels, each with its own road and 10 waves. Clear all 10 to move on. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. You start with 15 weapons and a new one unlocks every 5 levels, 35 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Clearing a level earns up to 5 stars: 5 for losing no colonists, fewer the more you lose. Stars earn a random reward: bonus credits, an extra colonist, a little more damage for every weapon (up to +25% in total), or a free weapon to build at the start of the next level. A perfect 5-star level gives two rewards. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 22, offline edition.</p>
   </div>
 </div>
 
@@ -247,8 +257,12 @@ const canHit=(b,e)=>b.hits==='g'?!A[e.type].fly:b.hits==='a'?!!A[e.type].fly:tru
 const hitsLabel=b=>b.hits==='g'?'Ground only':b.hits==='a'?'Air only':'Ground and air';
 const hitsShort=b=>b.hits==='g'?'Ground':b.hits==='a'?'Air':'Ground+Air';
 const TKEYS=Object.keys(T);
-const unlockedAt=l=>TKEYS.filter(k=>(T[k].lvl||0)<=l);
-const nextUnlock=l=>TKEYS.find(k=>(T[k].lvl||0)>l);
+/* Rewards earned from star ratings last for the whole campaign: extra damage, extra colonists, weapons unlocked early, bonus credits for the next level. */
+const freshMeta=()=>({dmg:0,lives:0,early:[],pend:0,pendFree:null,best:{}});
+let META=freshMeta();
+const unlockedAt=l=>TKEYS.filter(k=>(T[k].lvl||0)<=l||META.early.indexOf(k)>=0);
+const nextUnlock=l=>TKEYS.find(k=>(T[k].lvl||0)>l&&META.early.indexOf(k)<0);
+const totalStars=()=>Object.keys(META.best).reduce((a,k)=>a+META.best[k],0);
 const A={
   crawler:{nm:'crawler',hp:30,speed:1.0,reward:6,armor:0,leak:1,r:13,col:C.alien},
   runner:{nm:'runner',hp:18,speed:1.9,reward:5,armor:0,leak:1,r:9,col:C.violet},
@@ -265,7 +279,7 @@ const A={
 /* Level scaling: alien health grows a little faster than your income */
 const Lf=l=>1+LK*(l-1),Rf=l=>Math.pow(Lf(l),RK);
 let LK=.1,RK=.68,HX=4,CM=1.8,HM=1.65,RM=.75,SC=1.5;
-const startLives=l=>19+Math.max(1,l|0);
+const startLives=l=>19+Math.max(1,l|0)+(META.lives||0);
 const lifeCost=()=>Math.round(40*Rf(S.level)*Math.pow(1.08,S.bought||0));
 const startCredits=l=>Math.round(220*(1+(SC-1)*Math.min(1,l/50))*Rf(l)*Math.sqrt(1+HX*Math.max(0,l-100)/100));
 
@@ -309,7 +323,8 @@ let S,pick='rifle',sel=null,hover=null,msgT=0,muted=false,actx=null,lastShot=0;
 
 function newLevel(l,carry,bought){
   l=Math.max(1,Math.min(MAXLV,l|0));carry=Math.max(0,Math.round(+carry||0));bought=Math.max(0,Math.round(+bought||0));buildMap(l);sel=null;
-  S={level:l,money:startCredits(l)+carry,carry,hb:1+.1*carry/startCredits(l),lives:startLives(l)+bought,bought,bought0:bought,wave:0,towers:[],enemies:[],shots:[],parts:[],queue:[],spawnT:0,gap:.8,active:false,over:false,result:'',speed:S?S.speed:1,paused:false,auto:S?S.auto:false};
+  const pend=META.pend||0,free=META.pendFree&&T[META.pendFree]?META.pendFree:null;META.pend=0;META.pendFree=null;
+  S={level:l,money:startCredits(l)+carry+pend,carry,lost:0,free,hb:1+.1*carry/startCredits(l),lives:startLives(l)+bought,startL:startLives(l)+bought,bought,bought0:bought,wave:0,towers:[],enemies:[],shots:[],parts:[],queue:[],spawnT:0,gap:.8,active:false,over:false,result:'',speed:S?S.speed:1,paused:false,auto:S?S.auto:false};
   if((T[pick].lvl||0)>l)pick='rifle';
   renderArmoury();fitKey='';
 }
@@ -327,7 +342,7 @@ function wakeAudio(){if(actx)return;try{const AC=window.AudioContext||window.web
 
 /* Tower maths. Each gun fires for full damage; scope adds range; loader shortens the reload. */
 let RANK=.03;const rank=l=>l>100?Math.floor((l-100)/5):0;
-function stats(t){const b=T[t.type];const tk=GEN[t.type]?tankTier():0;return{dmg:b.dmg*t.guns*(1+RANK*rank(S.level))*(1+.07*tk),range:b.range*(1+.12*t.scope)*(1+.01*tk)*CELL,rate:b.rate*Math.pow(.85,t.loader),splash:(b.splash||0)*CELL};}
+function stats(t){const b=T[t.type];const tk=GEN[t.type]?tankTier():0;return{dmg:b.dmg*t.guns*(1+RANK*rank(S.level))*(1+.07*tk)*(S.vs?1:1+(META.dmg||0)),range:b.range*(1+.12*t.scope)*(1+.01*tk)*CELL,rate:b.rate*Math.pow(.85,t.loader),splash:(b.splash||0)*CELL};}
 const gunUnit=k=>Math.round(60+T[k].cost*.5);
 const cfgCost=(k,guns)=>T[k].cost+gunUnit(k)*guns*(guns-1)/2;
 const gunCost=t=>gunUnit(t.type)*t.guns;
@@ -499,7 +514,7 @@ function step(dt){
     if(ad.heal){e.healT=(e.healT||0)-dt;if(e.healT<=0){e.healT=.6;let any=false;
       for(const o of S.enemies){if(o!==e&&!o.dead&&o.hp<o.max&&Math.hypot(o.x-e.x,o.y-e.y)<=1.6*CELL){o.hp=Math.min(o.max,o.hp+o.max*.04);any=true;}}
       if(any)S.shots.push({k:'ring',x:e.x,y:e.y,r:1.6*CELL,col:ad.col,life:.4,max:.4});}}
-    if(e.d>=TOTAL){e.dead=true;S.lives=Math.max(0,S.lives-A[e.type].leak);burst(e.x,e.y,C.white,8);sfx(110,.35,'sawtooth',.06);}
+    if(e.d>=TOTAL){e.dead=true;S.lives=Math.max(0,S.lives-A[e.type].leak);S.lost=(S.lost||0)+A[e.type].leak;burst(e.x,e.y,C.white,8);sfx(110,.35,'sawtooth',.06);}
   }
   for(const t of S.towers){
     const tb=T[t.type];
@@ -533,17 +548,47 @@ function step(dt){
     if(S.auto)startWave();
   }
 }
+function starsFor(lost,start){if(lost<=0)return 5;const f=lost/Math.max(1,start);return f<=.1?4:f<=.25?3:f<=.5?2:1;}
+/* Star rewards are random and modest. 5 stars gives two different rewards, 3-4 stars one, 2 stars a small credit bonus, 1 star nothing. */
+const DMG_CAP=.25;
+function rollRewards(st,nl){
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  const sc=startCredits(nl),out=[];
+  const R={
+    credits:()=>{const v=Math.round(sc*{5:.3,4:.2,3:.12,2:.06}[st]);META.pend+=v;return '+'+v+' credits for level '+nl;},
+    lives:()=>{const v=st===5?2:1;META.lives+=v;return '+'+v+' colonist'+(v>1?'s':'')+' for the rest of the campaign';},
+    dmg:()=>{const v=st===5?.02:.01;META.dmg=Math.min(DMG_CAP,+((META.dmg||0)+v).toFixed(3));return '+'+Math.round(v*100)+'% damage for every weapon (now +'+Math.round(META.dmg*100)+'%)';},
+    weapon:()=>{const pool=unlockedAt(nl).filter(k=>st===5?T[k].cost>=150:st===4?T[k].cost>=80&&T[k].cost<=240:T[k].cost<=120);const k=pool.length?pick(pool):'rifle';META.pendFree=k;return 'A free '+T[k].name+' to build at the start of level '+nl;}
+  };
+  let pool=st===2?['credits']:st===3?['credits','lives','weapon']:['credits','lives','dmg','weapon'];
+  if((META.dmg||0)>=DMG_CAP)pool=pool.filter(x=>x!=='dmg');
+  const n=st===5?2:st>=2?1:0;
+  for(let i=0;i<n&&pool.length;i++){const k=pick(pool);pool=pool.filter(x=>x!==k);out.push(R[k]());}
+  return out;
+}
+function showRewards(st){
+  const box=$('rewards'),es=$('endStars'),a=$('again'),nl=S.level+1;
+  es.hidden=false;es.textContent='★'.repeat(st)+'☆'.repeat(5-st);es.setAttribute('aria-label',st+' of 5 stars');
+  const got=rollRewards(st,nl);
+  const intro=st===5?'Perfect defence! No colonists lost. Special reward:':st>=2?(S.lost+' colonist'+(S.lost>1?'s':'')+' lost. Reward:'):'Too many colonists lost for a reward. Lose none for 5 stars and a special reward.';
+  box.hidden=false;box.innerHTML='<p>'+intro+'</p>'+(got.length?'<ul class="rwl">'+got.map(g=>'<li>'+g+'</li>').join('')+'</ul>':'');
+  a.hidden=false;
+}
 function finish(kind){
   S.over=true;S.result=kind;S.active=false;sel=null;
   const t=$('endTitle'),x=$('endText'),a=$('again'),o=$('over2');
   if(kind==='cleared'){
     t.textContent='Level '+S.level+' cleared';t.style.color=C.human;
     x.textContent=S.lives+' colonists made it. The colony grows to '+(startLives(S.level+1)+(S.bought||0))+' for the next level. Level '+(S.level+1)+' has a new road and tougher aliens. You start it with '+(startCredits(S.level+1)+S.money)+' credits'+(S.money>0?', including '+S.money+' carried over. Carrying credits makes that level\'s aliens '+Math.round(10*S.money/startCredits(S.level+1))+'% tougher.':'.')+(function(){const k=TKEYS.find(k=>T[k].lvl===S.level+1);return k?' New weapon unlocked: '+T[k].name+'.':'';})()+(tierAt(S.level+1)>tierAt(S.level)?' New generation: tanks become the '+TANKS[tierAt(S.level+1)]+', jets the '+JETS[tierAt(S.level+1)]+', warships the '+SHIPS[tierAt(S.level+1)]+'.':'')+(rank(S.level+1)>rank(S.level)?' Armoury rank up: all weapons now deal +'+Math.round(RANK*rank(S.level+1)*100)+'% damage.':'');
-    a.textContent='Start level '+(S.level+1);o.hidden=true;save();sfx(660,.4,'triangle',.05);
+    a.textContent='Start level '+(S.level+1);o.hidden=true;
+    const st=starsFor(S.lost||0,(S.startL||startLives(S.level))+Math.max(0,(S.bought||0)-(S.bought0||0)));META.best[S.level]=Math.max(META.best[S.level]||0,st);
+    showRewards(st);save();sfx(st===5?990:660,.4,'triangle',.05);
   }else if(kind==='won'){
+    $('endStars').hidden=true;$('rewards').hidden=true;
     t.textContent='All '+MAXLV+' colonies held';t.style.color=C.human;x.textContent='Every level cleared. The aliens have nothing left to send.';
     a.textContent='Play again from level 1';o.hidden=true;clearSave();
   }else{
+    $('endStars').hidden=true;$('rewards').hidden=true;a.hidden=false;
     t.textContent='Colony overrun';t.style.color=C.alien;
     x.textContent='The dome fell on wave '+S.wave+' of level '+S.level+'. Bends in the road keep aliens in range longest, and brutes and queens shrug off small guns.';
     a.textContent='Retry level '+S.level;o.hidden=S.level===1;save();
@@ -639,7 +684,7 @@ function draw(){
   if(hover&&!S.over){
     const k=hover.c+','+hover.r,occ=S.towers.some(t=>t.c===hover.c&&t.r===hover.r);
     if(pick&&!occ){
-      const ok=canPlace(pick,hover.c,hover.r)&&S.money>=T[pick].cost,x=(hover.c+.5)*CELL,y=(hover.r+.5)*CELL;
+      const ok=canPlace(pick,hover.c,hover.r)&&(S.free===pick||S.money>=T[pick].cost),x=(hover.c+.5)*CELL,y=(hover.r+.5)*CELL;
       g.fillStyle=ok?'rgba(255,181,71,.18)':'rgba(232,69,127,.22)';g.fillRect(hover.c*CELL,hover.r*CELL,CELL,CELL);
       if(!road.has(k)&&T[pick].range<20){g.strokeStyle=ok?'rgba(255,181,71,.6)':'rgba(232,69,127,.5)';g.lineWidth=1.5;g.beginPath();g.arc(x,y,T[pick].range*CELL,0,6.283);g.stroke();}
     }
@@ -674,15 +719,15 @@ function banner(t){const g=ctx;g.font='600 22px "Barlow Semi Condensed","Arial N
 /* HUD */
 let hudKey='',fitKey='';
 function hud(){
-  const key=[S.level,S.wave,S.money,S.lives,S.active,S.over,S.speed,S.paused,S.auto,muted,pick,$('fitSel').value,sel?[sel.c,sel.r,sel.type,sel.guns,sel.scope,sel.loader].join('-'):''].join('|');
+  const key=[S.free,S.level,S.wave,S.money,S.lives,S.active,S.over,S.speed,S.paused,S.auto,muted,pick,$('fitSel').value,sel?[sel.c,sel.r,sel.type,sel.guns,sel.scope,sel.loader].join('-'):''].join('|');
   if(key===hudKey)return;hudKey=key;
-  $('level').textContent=S.level+' / '+MAXLV;$('wave').textContent=S.wave+' / '+WPL;$('money').textContent=S.money;$('lives').textContent=S.lives;
+  $('level').textContent=S.level+' / '+MAXLV;$('wave').textContent=S.wave+' / '+WPL;$('money').textContent=S.money;$('lives').textContent=S.lives;$('starsTotal').textContent=totalStars()+(META.dmg?' · +'+Math.round(META.dmg*100)+'% dmg':'');
   const nw=Math.min(WPL,S.wave+1),wb=$('waveBtn');wb.disabled=S.active||S.over;wb.textContent=S.active?'Wave '+S.wave+'\nunder way':'Send\nwave '+nw;
   {const bb=$('buyBtn'),c=lifeCost();bb.textContent='Buy colonist\n'+c;bb.disabled=S.over||S.money<c;}
   $('speedBtn').textContent='Speed\n'+S.speed+'×';$('pauseBtn').textContent=S.paused?'Resume':'Pause';
   $('autoBtn').textContent='Auto-send\n'+(S.auto?'on':'off');$('muteBtn').textContent='Sound\n'+(muted?'off':'on');
   $('next').textContent=S.over?'':(S.active?'Now: ':'Next: ')+waveSummary(S.level,S.active?S.wave:nw);
-  for(const b of document.querySelectorAll('.build[data-t]')){const k=b.dataset.t;b.setAttribute('aria-pressed',String(k===pick));b.classList.toggle('poor',S.money<T[k].cost);}
+  for(const b of document.querySelectorAll('.build[data-t]')){const k=b.dataset.t;b.setAttribute('aria-pressed',String(k===pick));b.classList.toggle('poor',S.free!==k&&S.money<T[k].cost);const cs=b.querySelector('.cost');if(cs)cs.textContent=S.free===k?'FREE':T[k].cost;}
   const info=$('unitInfo');$('mods').hidden=!sel;
   if(!sel){info.textContent='Tap a tower to modify it: add guns, fit a scope or loader, refit or sell.';return;}
   const st=stats(sel);
@@ -711,8 +756,8 @@ function tap(e){
   sel=null;if(!pick)return;
   if(road.has(p.c+','+p.r)){say('You can\'t build on the road.');return;}
   if(!canPlace(pick,p.c,p.r)){say(T[pick].naval?T[pick].name+'s go on water. Tap a blue lake cell.':'Only boats and warships can go on water.');return;}
-  const b=T[pick];if(S.money<b.cost){say('Not enough credits for a '+b.name+'. It costs '+b.cost+'.');return;}
-  S.money-=b.cost;sel=mkTower(pick,p.c,p.r);S.towers.push(sel);sfx(330,.08,'square',.03);keep();
+  const b=T[pick],free=S.free===pick;if(!free&&S.money<b.cost){say('Not enough credits for a '+b.name+'. It costs '+b.cost+'.');return;}
+  if(free){S.free=null;hudKey='';say('Free '+b.name+' built.');}else S.money-=b.cost;sel=mkTower(pick,p.c,p.r);if(free)sel.spent=0;S.towers.push(sel);sfx(330,.08,'square',.03);keep();
 }
 if(window.PointerEvent)cv.addEventListener('pointerdown',tap);
 else{let tt=0;cv.addEventListener('touchstart',e=>{tt=Date.now();if(e.changedTouches[0])tap(e.changedTouches[0]);e.preventDefault();},{passive:false});cv.addEventListener('mousedown',e=>{if(Date.now()-tt>600)tap(e);});}
@@ -739,12 +784,12 @@ $('speedBtn').addEventListener('click',()=>{S.speed=S.speed===1?2:S.speed===2?3:
 $('pauseBtn').addEventListener('click',()=>{S.paused=!S.paused;});
 $('autoBtn').addEventListener('click',()=>{S.auto=!S.auto;});
 $('muteBtn').addEventListener('click',()=>{muted=!muted;wakeAudio();});
-function go(l,m,carry,bought){newLevel(l,carry,bought);save();$('end').hidden=true;say(m);}
+function go(l,m,carry,bought){newLevel(l,carry,bought);save();$('end').hidden=true;if(S.free){pick=S.free;hudKey='';m+=' Your free '+T[S.free].name+' is selected: tap the map to build it at no cost.';}say(m);}
 $('again').addEventListener('click',()=>{
   if(S.result==='cleared')go(S.level+1,'Level '+(S.level+1)+'. New road. Build before you send the first wave.',S.money,S.bought);
-  else if(S.result==='won')go(1,'New campaign. Build before you send the first wave.');
+  else if(S.result==='won'){META=freshMeta();go(1,'New campaign. Build before you send the first wave.');}
   else go(S.level,'Level '+S.level+' again, from wave 1.',S.carry,S.bought0);});
-$('over2').addEventListener('click',()=>go(1,'New campaign. Build before you send the first wave.'));
+$('over2').addEventListener('click',()=>{META=freshMeta();go(1,'New campaign. Build before you send the first wave.');});
 let armed=0;
 $('resetBtn').addEventListener('click',()=>{const b=$('resetBtn');
   if(!armed){b.textContent='Tap again to restart';armed=setTimeout(()=>{armed=0;b.textContent='Restart level';},3000);return;}
@@ -773,7 +818,7 @@ function frame(ts){
 }
 let failed=false;
 function fail(where,e){if(failed)return;failed=true;const m=$(mode==='versus'?'vsStatus':'msg');m.style.color=C.alien;m.textContent='Game error in '+where+' (build '+BUILD+'): '+(e&&e.message||e);}
-const BUILD=20;
+const BUILD=22;
 window.addEventListener('error',e=>fail('page',e.error||e.message));
 /* ---------- Two-player versus: two boards on one screen ---------- */
 let mode='campaign',camp=null,VS=null;
@@ -892,20 +937,23 @@ $('vsPause').addEventListener('click',()=>{if(mode!=='versus'||VS.over)return;VS
 
 /* Saving */
 const KEY='lcd-save-v3';
-const freshSnap=(l,carry,bought)=>({level:l,wave:0,money:startCredits(l)+(carry||0),carry:carry||0,bought:bought||0,bought0:bought||0,lives:startLives(l)+(bought||0),towers:[]});
+const freshSnap=(l,carry,bought)=>({meta:JSON.parse(JSON.stringify(META)),level:l,wave:0,money:startCredits(l)+(carry||0)+(META.pend||0),carry:carry||0,bought:bought||0,bought0:bought||0,lives:startLives(l)+(bought||0),towers:[]});
 function snap(){
   const S=campaignS();
   if(S.over)return S.result==='cleared'?freshSnap(S.level+1,S.money,S.bought):S.result==='won'?freshSnap(1):freshSnap(S.level,S.carry,S.bought0);
-  return{level:S.level,carry:S.carry||0,bought:S.bought||0,bought0:S.bought0||0,wave:S.active?S.wave-1:S.wave,money:S.money,lives:S.lives,towers:S.towers.map(t=>({type:t.type,c:t.c,r:t.r,guns:t.guns,scope:t.scope,loader:t.loader,spent:t.spent}))};
+  return{meta:JSON.parse(JSON.stringify(META)),free:S.free||null,lost:S.lost||0,level:S.level,carry:S.carry||0,bought:S.bought||0,bought0:S.bought0||0,wave:S.active?S.wave-1:S.wave,money:S.money,lives:S.lives,towers:S.towers.map(t=>({type:t.type,c:t.c,r:t.r,guns:t.guns,scope:t.scope,loader:t.loader,spent:t.spent}))};
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(snap()));}catch(e){}}
 function readSave(){try{const d=JSON.parse(localStorage.getItem(KEY));return d&&Array.isArray(d.towers)&&d.level>=1?d:null;}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(KEY);}catch(e){}}
 function apply(d){
+  const m=d&&d.meta;META=freshMeta();
+  if(m&&typeof m==='object'){META.dmg=Math.max(0,Math.min(5,+m.dmg||0));META.lives=Math.max(0,Math.min(999,+m.lives|0));META.pend=Math.max(0,+m.pend|0);
+    if(Array.isArray(m.early))META.early=m.early.filter(k=>T[k]);if(m.pendFree&&T[m.pendFree])META.pendFree=m.pendFree;if(m.best&&typeof m.best==='object')for(const k in m.best){const v=+m.best[k];if(v>=1&&v<=5)META.best[k]=v;}}
   newLevel(d&&d.level||1,d&&d.carry,d&&d.bought0);
   if(!d||!Array.isArray(d.towers))return;
   const cl=(v,a,b,f)=>{v=+v;return v>=a&&v<=b?Math.floor(v):f;};
-  S.money=Math.max(0,+d.money||0);S.lives=cl(d.lives,1,9999,startLives(S.level));S.bought=cl(d.bought,0,9999,0);S.wave=cl(d.wave,0,WPL-1,0);
+  S.money=Math.max(0,+d.money||0);S.lives=cl(d.lives,1,9999,startLives(S.level));S.bought=cl(d.bought,0,9999,0);S.wave=cl(d.wave,0,WPL-1,0);S.lost=cl(d.lost,0,9999,0);if(d.free&&T[d.free])S.free=d.free;
   for(const t of d.towers){
     if(!T[t.type]||!(t.c>=0&&t.c<COLS&&t.r>=0&&t.r<ROWS)||road.has(t.c+','+t.r))continue;
     if(!canPlace(t.type,t.c,t.r)){S.money+=(+t.spent||0);continue;}
