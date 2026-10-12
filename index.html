@@ -155,7 +155,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:3/2;border-radius
     </div>
   </div>
 
-  <p class="help">There are 200 levels, each with its own road and 10 waves. Clear all 10 to move on. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. You start with 13 weapons and a new one unlocks every 5 levels, 33 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 12, offline edition.</p>
+  <p class="help">There are 200 levels, each with its own road and 10 waves. Clear all 10 to move on. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. You start with 13 weapons and a new one unlocks every 5 levels, 33 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 13, offline edition.</p>
   </div>
 </div>
 
@@ -221,8 +221,8 @@ const A={
 };
 /* Level scaling: alien health grows a little faster than your income */
 const Lf=l=>1+LK*(l-1),Rf=l=>Math.pow(Lf(l),RK);
-let LK=.1,RK=.68,HX=6;
-const startCredits=l=>Math.round(220*Rf(l)*Math.sqrt(1+HX*Math.max(0,l-100)/100));
+let LK=.1,RK=.68,HX=6,CM=2.2,HM=1.6,RM=.7,SC=1.5;
+const startCredits=l=>Math.round(220*(1+(SC-1)*Math.min(1,l/50))*Rf(l)*Math.sqrt(1+HX*Math.max(0,l-100)/100));
 
 /* Road: a new layout for every level, generated from the level number */
 let PTS=[],SEG=[],TOTAL=0,road=new Set(),water=new Set();
@@ -295,12 +295,13 @@ function mkTower(type,c,r){return{type,c,r,x:(c+.5)*CELL,y:(r+.5)*CELL,guns:1,sc
 
 function say(m){$('msg').textContent=m;msgT=3.5;}
 
+
 function counts(l,w){return{
-  crawler:5+w+Math.min(10,Math.floor(l/10)),
-  runner:w>=3?w+Math.min(10,Math.floor(l/8)):0,
-  brute:w>=5?Math.floor((w-3)/2)+Math.min(8,Math.floor(l/12)):0,
+  crawler:Math.round(CM*(5+w+Math.min(10,Math.floor(l/10)))),
+  runner:w>=3?Math.round(CM*(w+Math.min(10,Math.floor(l/8)))):0,
+  brute:w>=5?Math.round(CM*(Math.floor((w-3)/2)+Math.min(8,Math.floor(l/12)))):0,
   queen:w===WPL?1+Math.min(3,Math.floor(l/25)):(w===5&&l>=10?1:0)};}
-const hpScale=(l,w)=>Lf(l)*(1+HX*Math.max(0,l-100)/100)*(1+.2*(w-1));
+const hpScale=(l,w)=>HM*Lf(l)*(1+HX*Math.max(0,l-100)/100)*(1+.2*(w-1));
 function waveList(l,w){
   const n=counts(l,w),a=[];for(let i=0;i<n.crawler;i++)a.push('crawler');
   const ins=(type,k)=>{for(let i=0;i<k;i++)a.splice(Math.floor(Math.random()*(a.length+1)),0,type);};
@@ -310,11 +311,11 @@ function waveList(l,w){
 }
 function waveSummary(l,w){
   const base=counts(l,w);
-  return Object.keys(base).filter(k=>base[k]).map(k=>base[k]+' '+k+(base[k]>1?'s':'')).join(', ')+'. Toughness ×'+hpScale(l,w).toFixed(1);
+  return Object.keys(base).filter(k=>base[k]).map(k=>base[k]+' '+k+(base[k]>1?'s':'')).join(', ')+'. Toughness ×'+(hpScale(l,w)/HM).toFixed(1);
 }
 function startWave(){
   if(S.active||S.over||S.wave>=WPL)return;
-  S.wave++;S.queue=waveList(S.level,S.wave);S.gap=Math.max(.3,.85-S.wave*.03-S.level*.002);S.spawnT=.4;S.active=true;
+  S.wave++;S.queue=waveList(S.level,S.wave);S.gap=Math.max(.22,(.85-S.wave*.03-S.level*.002)/Math.sqrt(CM));S.spawnT=.4;S.active=true;
   say(S.queue.indexOf('queen')>=0?'Wave '+S.wave+'. A queen is coming.':'Wave '+S.wave+' incoming.');sfx(220,.3,'sawtooth',.05);
 }
 function spawn(q){
@@ -324,7 +325,7 @@ function spawn(q){
 function hurt(e,dmg,pierce){
   if(e.dead)return;
   e.hp-=pierce?dmg:Math.max(1,dmg-e.armor);
-  if(e.hp<=0){e.dead=true;S.money+=Math.round(A[e.type].reward*Rf(S.level));burst(e.x,e.y,A[e.type].col,e.type==='queen'?26:9);sfx(e.type==='queen'?90:160,.18,'triangle',.05);}
+  if(e.hp<=0){e.dead=true;S.money+=Math.max(1,Math.round(A[e.type].reward*Rf(S.level)*(S.vs?1:RM)));burst(e.x,e.y,A[e.type].col,e.type==='queen'?26:9);sfx(e.type==='queen'?90:160,.18,'triangle',.05);}
 }
 /* Boats, warships and tanks drift between free neighbouring cells of their own terrain */
 function roam(t,dt,sp,maxD){
@@ -701,7 +702,7 @@ function frame(ts){
 }
 let failed=false;
 function fail(where,e){if(failed)return;failed=true;const m=$(mode==='versus'?'vsStatus':'msg');m.style.color=C.alien;m.textContent='Game error in '+where+' (build '+BUILD+'): '+(e&&e.message||e);}
-const BUILD=12;
+const BUILD=13;
 window.addEventListener('error',e=>fail('page',e.error||e.message));
 /* ---------- Two-player versus: two boards on one screen ---------- */
 let mode='campaign',camp=null,VS=null;
@@ -847,7 +848,7 @@ function start(data){
   apply(sv);if(sv&&!hasHot&&(sv.level>1||sv.wave>0))say('Welcome back. Level '+S.level+', before wave '+(S.wave+1)+'.');
   size();requestAnimationFrame(frame);
 }
-if(window.__lcdTest)window.__lcdTest({canPlace,get water(){return water;},enterVersus,vsAct,vsFrame,get VS(){return VS;},unlockedAt,get S(){return S;},step,startWave,apply,freshSnap,T,stats,gunCost,scopeCost,loadCost,mkTower,get road(){return road;},get PTS(){return PTS;},pointAt,get TOTAL(){return TOTAL;},set(k,r){LK=k;RK=r;},setRank(v){RANK=v;},setHX(v){HX=v;},CELL,COLS,ROWS});
+if(window.__lcdTest)window.__lcdTest({canPlace,get water(){return water;},enterVersus,vsAct,vsFrame,get VS(){return VS;},unlockedAt,get S(){return S;},step,startWave,apply,freshSnap,T,stats,gunCost,scopeCost,loadCost,mkTower,get road(){return road;},get PTS(){return PTS;},pointAt,get TOTAL(){return TOTAL;},set(k,r){LK=k;RK=r;},setRank(v){RANK=v;},setHX(v){HX=v;},setHard(c,h,r,sc){CM=c;HM=h;RM=r;SC=sc;},CELL,COLS,ROWS});
 const hot=window.claude&&window.claude.hot;
 try{if(hot&&hot.snapshot)hot.snapshot(snap);}catch(e){}
 try{if(hot&&hot.ready){hot.ready(start);setTimeout(()=>start({}),1500);}else start((hot&&hot.data)||{});}catch(e){start({});}
