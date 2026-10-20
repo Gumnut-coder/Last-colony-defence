@@ -194,7 +194,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
 
   <div class="armoury" id="armoury"></div>
 
-  <p class="help">There are 400 levels, each with its own road and 10 waves. Clear all 10 to move on. From level 201 the map is wider and aliens come down two roads, one from the left and one from the bottom: drag the map sideways (or use the arrow keys) to see it all. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. Minefields are the only thing you can build on the road: each holds a few mines that blow up under ground aliens and re-arm over time. The Bomber flies to a spot you choose and carpet-bombs it: after building one, tap the map to set its target, or use Set bomb target to move it. Jet fighters also carry two missiles they fire at nearby aliens. You start with 17 weapons and a new one unlocks every 5 levels, 37 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Clearing a level earns up to 5 stars: 5 for losing no colonists, fewer the more you lose. Stars earn a random reward: bonus credits, an extra colonist, a little more damage for every weapon (up to +25% in total), or a free weapon to build at the start of the next level. A perfect 5-star level gives two rewards. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 25, offline edition.</p>
+  <p class="help">There are 400 levels, each with its own road and 10 waves. Clear all 10 to move on. From level 201 the map is wider and aliens come down two roads, one from the left and one from the bottom: drag the map sideways (or use the arrow keys) to see it all. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. Minefields are the only thing you can build on the road: each holds a few mines that blow up under ground aliens and re-arm over time. The Bomber flies to a spot you choose and carpet-bombs it: after building one, tap the map to set its target, or use Set bomb target to move it. Jet fighters also carry two missiles they fire at nearby aliens. You start with 17 weapons and a new one unlocks every 5 levels, 37 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Clearing a level earns up to 5 stars: 5 for losing no colonists, fewer the more you lose. Stars earn a random reward: bonus credits, an extra colonist, a little more damage for every weapon (up to +25% in total), or a free weapon to build at the start of the next level. A perfect 5-star level gives two rewards. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 26, offline edition.</p>
   </div>
 </div>
 
@@ -221,7 +221,7 @@ const T={
   warship:{get name(){return SHIPS[tankTier()];},note:'Water only. Patrols its lake, long-range heavy shells',cost:420,range:5.5,rate:2.2,dmg:120,splash:1.25,naval:1,mode:'lob',look:'ship',col:'#aab7bf'},
   jet:{get name(){return JETS[tankTier()];},note:'Flies the whole map, guns down what it dives at and fires missiles',cost:320,range:2.8,rate:.12,dmg:22,mode:'jet',look:'jet',col:'#e6edf2'},
   mine:{name:'Minefield',note:'Laid on the road. Mines blow up under passing aliens and re-arm over time',cost:90,range:.6,rate:5,dmg:60,splash:.9,onRoad:1,mode:'mine',look:'mine',col:'#e8457f'},
-  bomber:{name:'Bomber',note:'Flies to the spot you choose and carpet-bombs it',cost:450,range:2.2,rate:7,dmg:70,splash:1.05,mode:'bomber',look:'jet',col:'#c9cfa6'},
+  bomber:{name:'Bomber',note:'Circles the spot you choose and keeps carpet-bombing it',cost:450,range:2.2,rate:4.5,dmg:70,splash:1.05,mode:'bomber',look:'jet',col:'#c9cfa6'},
   tank:{get name(){return TANKS[tankTier()];},note:'Armour-piercing shell with a blast. Drives around its post',cost:240,range:3,rate:1.3,dmg:58,splash:.7,pierce:1,move:1,mode:'hit',look:'tank',col:'#c9d2a8',rw:4,rl:.1,rc:C.human},
   flak:{name:'Flak Gun',note:'Bursts of shrapnel among flyers',cost:90,range:3.3,rate:.6,dmg:24,splash:.8,mode:'hit',look:'barrel',col:'#b0c4d0',bl:26,bw:4,rw:3,rl:.1,rc:C.volt},
   sam:{name:'SAM Site',note:'Homing missiles, very long reach',cost:180,range:5.5,rate:1.7,dmg:85,splash:.6,mode:'homing',look:'box',col:'#9be15d'},
@@ -489,16 +489,21 @@ function drawMines(g,t){
 }
 /* Bomber: waits on its pad, flies to the target the player set, drops a line of bombs across it, flies home, reloads */
 function bomb(t,b,dt){
-  if(t.jx==null){t.jx=t.x;t.jy=t.y;t.ja=-Math.PI/2;t.ph='home';}
-  const sp=170,turn=(ax,ay)=>{let df=Math.atan2(ay-t.jy,ax-t.jx)-t.ja;df=Math.atan2(Math.sin(df),Math.cos(df));t.ja+=Math.max(-3*dt,Math.min(3*dt,df));t.jx+=Math.cos(t.ja)*sp*dt;t.jy+=Math.sin(t.ja)*sp*dt;return Math.hypot(ax-t.jx,ay-t.jy);};
-  if(t.ph==='home'){t.jx=t.x;t.jy=t.y;t.dropped=false;t.cd-=dt;
-    if(t.cd<=0&&t.tx!=null&&S.enemies.some(e=>!e.dead&&!A[e.type].fly)){t.ph='out';sfx(180,.5,'sawtooth',.03);}return;}
-  if(t.ph==='out'){const d=turn(t.tx,t.ty);
-    if(d<26){const st=stats(t),n=3+2*t.guns,per=st.dmg/t.guns,ca=Math.cos(t.ja),sa=Math.sin(t.ja);
-      for(let i=0;i<n;i++){const o=(i-(n-1)/2)*30;S.shots.push({k:'bomb',type:t.type,guns:1,x:t.tx+ca*o,y:t.ty+sa*o,tx:t.tx+ca*o,ty:t.ty+sa*o,t:-i*.06,dur:.45,dmg:per,splash:st.splash});}
-      t.dropped=true;t.ph='back';sfx(120,.6,'triangle',.05);}
-    return;}
-  if(t.ph==='back'){const d=turn(t.x,t.y);if(d<20){t.ph='home';t.ja=-Math.PI/2;t.cd=stats(t).rate;}}
+  /* Bomber: once given a target it keeps circling over it and bombing every reload, for as long as ground aliens are on the map. Lands only when the map is clear. */
+  if(t.jx==null){t.jx=t.x;t.jy=t.y;t.ja=-Math.PI/2;t.ph='home';t.away=0;}
+  const sp=170,steer=(ax,ay)=>{const d=Math.hypot(ax-t.jx,ay-t.jy);let df=Math.atan2(ay-t.jy,ax-t.jx)-t.ja;df=Math.atan2(Math.sin(df),Math.cos(df));
+    const rate=d<90?9:3;t.ja+=Math.max(-rate*dt,Math.min(rate*dt,df));return d;};
+  const fwd=()=>{t.jx+=Math.cos(t.ja)*sp*dt;t.jy+=Math.sin(t.ja)*sp*dt;};
+  const ground=S.enemies.some(e=>!e.dead&&!A[e.type].fly);
+  t.cd-=dt;
+  if(t.ph==='home'){t.jx=t.x;t.jy=t.y;t.dropped=false;if(t.tx!=null&&ground){t.ph='air';sfx(180,.5,'sawtooth',.03);}return;}
+  if(!ground&&t.tx!=null){t.idle=(t.idle||0)+dt;}else t.idle=0;
+  if(t.idle>2.5||t.tx==null){const d=steer(t.x,t.y);fwd();if(d<24){t.ph='home';t.ja=-Math.PI/2;}return;}
+  if(t.away>0){t.away-=dt;fwd();return;}
+  const d=steer(t.tx,t.ty);fwd();t.dropped=t.cd>0;
+  if(d<30&&t.cd<=0){const st=stats(t),n=3+2*t.guns,per=st.dmg/t.guns,ca=Math.cos(t.ja),sa=Math.sin(t.ja);
+    for(let i=0;i<n;i++){const o=(i-(n-1)/2)*30;S.shots.push({k:'bomb',type:t.type,guns:1,x:t.tx+ca*o,y:t.ty+sa*o,tx:t.tx+ca*o,ty:t.ty+sa*o,t:-i*.06,dur:.45,dmg:per,splash:st.splash});}
+    t.cd=st.rate;t.away=.9;sfx(120,.6,'triangle',.05);}
 }
 /* Apply one weapon hit and its side effects to one alien */
 function fx(e,b,guns,dmg){
@@ -822,7 +827,7 @@ let aiming=null;
 function worldPt(ev,el){const r=(el||cv).getBoundingClientRect();return{x:camX+(ev.clientX-r.left)/r.width*VW,y:(ev.clientY-r.top)/r.height*H};}
 function tap(e){
   wakeAudio();if(S.over)return;
-  if(aiming){if(S.towers.indexOf(aiming)<0){aiming=null;}else{const w=worldPt(e);aiming.tx=w.x;aiming.ty=w.y;sel=aiming;aiming=null;hudKey='';say('Bomb target set. The bomber flies there whenever aliens are on the ground.');keep();return;}}
+  if(aiming){if(S.towers.indexOf(aiming)<0){aiming=null;}else{const w=worldPt(e);aiming.tx=w.x;aiming.ty=w.y;sel=aiming;aiming=null;hudKey='';say('Bomb target set. The bomber will keep bombing there whenever aliens are on the ground.');keep();return;}}
   const p=cellOf(e);if(!p)return;
   const t=towerAt(e,null,p);
   if(t){sel=sel===t?null:t;return;}
@@ -905,7 +910,7 @@ function frame(ts){
 }
 let failed=false;
 function fail(where,e){if(failed)return;failed=true;const m=$(mode==='versus'?'vsStatus':'msg');m.style.color=C.alien;m.textContent='Game error in '+where+' (build '+BUILD+'): '+(e&&e.message||e);}
-const BUILD=25;
+const BUILD=26;
 window.addEventListener('error',e=>fail('page',e.error||e.message));
 /* ---------- Two-player versus: two boards on one screen ---------- */
 let mode='campaign',camp=null,VS=null;
