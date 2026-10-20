@@ -163,6 +163,8 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
         <label class="lbl" for="fitSel">Refit to</label>
         <select id="fitSel"></select>
         <button id="fitBtn" type="button">Refit</button>
+        <button id="prioBtn" type="button">Target
+First</button>
         <button id="aimBtn" type="button" hidden>Set bomb target</button>
         <button id="sellBtn" type="button">Sell</button>
       </div>
@@ -194,7 +196,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
 
   <div class="armoury" id="armoury"></div>
 
-  <p class="help">There are 400 levels, each with its own road and 10 waves. Clear all 10 to move on. From level 201 the map is wider and aliens come down two roads, one from the left and one from the bottom: drag the map sideways (or use the arrow keys) to see it all. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. Minefields are the only thing you can build on the road: each holds a few mines that blow up under ground aliens and re-arm over time. The Bomber flies to a spot you choose and carpet-bombs it: after building one, tap the map to set its target, or use Set bomb target to move it. Jet fighters also carry two missiles they fire at nearby aliens. You start with 17 weapons and a new one unlocks every 5 levels, 37 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Clearing a level earns up to 5 stars: 5 for losing no colonists, fewer the more you lose. Stars earn a random reward: bonus credits, an extra colonist, a little more damage for every weapon (up to +25% in total), or a free weapon to build at the start of the next level. A perfect 5-star level gives two rewards. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 26, offline edition.</p>
+  <p class="help">There are 400 levels, each with its own road and 10 waves. Clear all 10 to move on. From level 201 the map is wider and aliens come down two roads, one from the left and one from the bottom: drag the map sideways (or use the arrow keys) to see it all. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. Select a tower and press Target to choose what it shoots first: the first alien on the road, the last, the strongest, the weakest or the closest. Minefields are the only thing you can build on the road: each holds a few mines that blow up under ground aliens and re-arm over time. The Bomber flies to a spot you choose and carpet-bombs it: after building one, tap the map to set its target, or use Set bomb target to move it. Jet fighters also carry two missiles they fire at nearby aliens. You start with 17 weapons and a new one unlocks every 5 levels, 37 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Clearing a level earns up to 5 stars: 5 for losing no colonists, fewer the more you lose. Stars earn a random reward: bonus credits, an extra colonist, a little more damage for every weapon (up to +25% in total), or a free weapon to build at the start of the next level. A perfect 5-star level gives two rewards. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 27, offline edition.</p>
   </div>
 </div>
 
@@ -435,18 +437,18 @@ function roam(t,dt,sp,maxD){
 /* Jets never stop: they chase the lead alien, fire while it is in front of them, overshoot and come round again */
 function fly(t,b,dt){
   if(t.jx==null){t.jx=t.x;t.jy=t.y;t.ja=-Math.PI/2;t.ext=false;}
-  let tg=null;for(const e of S.enemies){if(!e.dead&&(!tg||e.k>tg.k))tg=e;}
+  let tg=null;for(const e of S.enemies){if(!e.dead&&(!tg||tscore(t,e,t.jx,t.jy)>tscore(t,tg,t.jx,t.jy)))tg=e;}
   const ax=tg?tg.x:t.x,ay=tg?tg.y:t.y,dx=ax-t.jx,dy=ay-t.jy,d=Math.hypot(dx,dy);
   if(d<60)t.ext=true;else if(d>190)t.ext=false;
   if(!t.ext){let df=Math.atan2(dy,dx)-t.ja;df=Math.atan2(Math.sin(df),Math.cos(df));t.ja+=Math.max(-2.6*dt,Math.min(2.6*dt,df));}
   t.jx+=Math.cos(t.ja)*150*dt;t.jy+=Math.sin(t.ja)*150*dt;
   if(t.flash>0)t.flash-=dt;
   t.mcd=(t.mcd==null?1:t.mcd)-dt;
-  if(t.mcd<=0){const st=stats(t),near=S.enemies.filter(e=>!e.dead&&Math.hypot(e.x-t.jx,e.y-t.jy)<=5*CELL).sort((p,q)=>q.k-p.k).slice(0,2);
+  if(t.mcd<=0){const st=stats(t),near=S.enemies.filter(e=>!e.dead&&Math.hypot(e.x-t.jx,e.y-t.jy)<=5*CELL).sort((p,q)=>tscore(t,q,t.jx,t.jy)-tscore(t,p,t.jx,t.jy)).slice(0,2);
     if(near.length){t.mcd=2.6;for(let i=0;i<2;i++){const e=near[i%near.length],sg=i?1:-1;S.shots.push({k:'missile',type:t.type,guns:t.guns,x:t.jx-Math.sin(t.ja)*12*sg,y:t.jy+Math.cos(t.ja)*12*sg,tx:e.x,ty:e.y,tg:e,a:t.ja,dmg:st.dmg*2,splash:.7*CELL,col:C.alien});}sfx(260,.25,'sawtooth',.035);}}
   t.cd-=dt;if(t.cd>0)return;
   const st=stats(t);let hit=null;
-  for(const e of S.enemies){if(e.dead)continue;const ex=e.x-t.jx,ey=e.y-t.jy;if(Math.hypot(ex,ey)>st.range)continue;let df=Math.atan2(ey,ex)-t.ja;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)<=.5&&(!hit||e.k>hit.k))hit=e;}
+  for(const e of S.enemies){if(e.dead)continue;const ex=e.x-t.jx,ey=e.y-t.jy;if(Math.hypot(ex,ey)>st.range)continue;let df=Math.atan2(ey,ex)-t.ja;df=Math.atan2(Math.sin(df),Math.cos(df));if(Math.abs(df)<=.5&&(!hit||tscore(t,e,t.jx,t.jy)>tscore(t,hit,t.jx,t.jy)))hit=e;}
   if(!hit)return;
   t.cd=st.rate;t.flash=.07;const hx=hit.x,hy=hit.y,side=(t.side=-(t.side||1))*9;fx(hit,b,t.guns,st.dmg);
   S.shots.push({k:'ray',x:t.jx+Math.cos(t.ja)*20-Math.sin(t.ja)*side,y:t.jy+Math.sin(t.ja)*20+Math.cos(t.ja)*side,tx:hx,ty:hy,col:C.human,w:2,life:.06,max:.06});tick(700,.04,'square',.012);
@@ -488,6 +490,10 @@ function drawMines(g,t){
   g.fillStyle=C.white;for(let i=0;i<t.loader;i++)g.fillRect(t.x+17-i*6,t.y+21,4,3);
 }
 /* Bomber: waits on its pad, flies to the target the player set, drops a line of bombs across it, flies home, reloads */
+/* Target priority, set per tower: first (furthest along the road), last, strongest (most health), weakest, closest */
+const TMODES=['first','last','strong','weak','close'],TLABEL={first:'First',last:'Last',strong:'Strongest',weak:'Weakest',close:'Closest'};
+function tscore(t,e,px,py){const m=t.tm||'first';return m==='last'?-e.k:m==='strong'?e.hp:m==='weak'?-e.hp:m==='close'?-Math.hypot(e.x-px,e.y-py):e.k;}
+const usesPriority=k=>{const m=T[k].mode;return m!=='aura'&&m!=='mine'&&m!=='bomber';};
 function bomb(t,b,dt){
   /* Bomber: once given a target it keeps circling over it and bombing every reload, for as long as ground aliens are on the map. Lands only when the map is clear. */
   if(t.jx==null){t.jx=t.x;t.jy=t.y;t.ja=-Math.PI/2;t.ph='home';t.away=0;}
@@ -537,7 +543,7 @@ function fire(t,st,tg,inR){
   }else if(b.mode==='lob'){
     S.shots.push({k:'shell',type:t.type,guns:g,x:t.x,y:t.y,tx:tg.x,ty:tg.y,t:0,dur:.45,dmg:st.dmg,splash:st.splash});sfx(140,.2,'triangle',.05);
   }else if(b.mode==='homing'){
-    const tgs=b.multi?inR.slice().sort((p,q)=>q.k-p.k).slice(0,b.multi):[tg];
+    const tgs=b.multi?inR.slice().sort((p,q)=>tscore(t,q,t.x,t.y)-tscore(t,p,t.x,t.y)).slice(0,b.multi):[tg];
     for(let i=0;i<(b.multi||1);i++){const e=tgs[i%tgs.length];S.shots.push({k:'missile',type:t.type,guns:g,x:t.x,y:t.y,tx:e.x,ty:e.y,tg:e,a:t.a,dmg:st.dmg,splash:st.splash,col:b.col,big:b.big});}
     sfx(260,.3,'sawtooth',.04);
   }else if(b.mode==='strafe'){
@@ -549,7 +555,7 @@ function fire(t,st,tg,inR){
     for(const e of S.enemies){if(e.dead)continue;const dx=e.x-t.x,dy=e.y-t.y,pr=dx*ca+dy*sa;if(pr>=0&&pr<=st.range&&Math.abs(dy*ca-dx*sa)<=A[e.type].r+10)fx(e,b,g,st.dmg);}
     ray(t,b,t.x+ca*st.range,t.y+sa*st.range);sfx(1100,.3,'sawtooth',.04);
   }else{
-    const tgs=b.multi?inR.slice().sort((p,q)=>q.k-p.k).slice(0,b.multi):[tg];
+    const tgs=b.multi?inR.slice().sort((p,q)=>tscore(t,q,t.x,t.y)-tscore(t,p,t.x,t.y)).slice(0,b.multi):[tg];
     for(const e of tgs){
       const ex=e.x,ey=e.y;fx(e,b,g,st.dmg);ray(t,b,ex,ey);
       if(b.splash){for(const o of S.enemies){if(o!==e&&!o.dead&&Math.hypot(o.x-ex,o.y-ey)<=st.splash)fx(o,b,g,st.dmg);}S.shots.push({k:'boom',x:ex,y:ey,r:st.splash,life:.25,max:.25,col:b.col});}
@@ -589,7 +595,7 @@ function step(dt){
     if(tb.mode==='mine'){mines(t,tb,dt);continue;}
     t.cd-=dt;if(t.cd>0)continue;
     const st=stats(t);let tg=null;const inR=[];
-    for(const e of S.enemies){if(e.dead||!canHit(tb,e))continue;const dx=e.x-t.x,dy=e.y-t.y;if(dx*dx+dy*dy<=st.range*st.range){inR.push(e);if(!tg||e.k>tg.k)tg=e;}}
+    for(const e of S.enemies){if(e.dead||!canHit(tb,e))continue;const dx=e.x-t.x,dy=e.y-t.y;if(dx*dx+dy*dy<=st.range*st.range){inR.push(e);if(!tg||tscore(t,e,t.x,t.y)>tscore(t,tg,t.x,t.y))tg=e;}}
     if(!tg)continue;
     t.cd=st.rate;fire(t,st,tg,inR);
   }
@@ -792,7 +798,7 @@ function banner(t){const g=ctx;g.font='600 22px "Barlow Semi Condensed","Arial N
 /* HUD */
 let hudKey='',fitKey='';
 function hud(){
-  const key=[sel&&sel.ch,aiming?1:0,S.free,S.level,S.wave,S.money,S.lives,S.active,S.over,S.speed,S.paused,S.auto,muted,pick,$('fitSel').value,sel?[sel.c,sel.r,sel.type,sel.guns,sel.scope,sel.loader].join('-'):''].join('|');
+  const key=[sel&&sel.tm,sel&&sel.ch,aiming?1:0,S.free,S.level,S.wave,S.money,S.lives,S.active,S.over,S.speed,S.paused,S.auto,muted,pick,$('fitSel').value,sel?[sel.c,sel.r,sel.type,sel.guns,sel.scope,sel.loader].join('-'):''].join('|');
   if(key===hudKey)return;hudKey=key;
   $('level').textContent=S.level+' / '+MAXLV;$('wave').textContent=S.wave+' / '+WPL;$('money').textContent=S.money;$('lives').textContent=S.lives;$('starsTotal').textContent=totalStars()+(META.dmg?' · +'+Math.round(META.dmg*100)+'% dmg':'');
   const nw=Math.min(WPL,S.wave+1),wb=$('waveBtn');wb.disabled=S.active||S.over;wb.textContent=S.active?'Wave '+S.wave+'\nunder way':'Send\nwave '+nw;
@@ -813,6 +819,7 @@ function hud(){
   if(fk!==fitKey){fitKey=fk;const keep=fs.value;fs.innerHTML=unlockedAt(S.level).filter(k=>k!==sel.type&&domain(k)===domain(sel.type)).map(k=>'<option value="'+k+'">'+T[k].name+' ('+fitCost(sel,k)+')</option>').join('');if(keep&&keep!==sel.type&&(T[keep].lvl||0)<=S.level)fs.value=keep;}
   const fc=T[fs.value]?fitCost(sel,fs.value):0,fb=$('fitBtn');fb.textContent='Refit\n'+fc;fb.disabled=!T[fs.value]||S.money<fc;
   $('sellBtn').textContent='Sell\n+'+sellVal(sel);
+  {const pb=$('prioBtn');pb.hidden=!usesPriority(sel.type);pb.textContent='Target\n'+TLABEL[sel.tm||'first'];}
   {const ab=$('aimBtn');ab.hidden=T[sel.type].mode!=='bomber';ab.textContent=aiming===sel?'Tap the map\nto aim':'Set bomb\ntarget';}
 }
 
@@ -867,6 +874,7 @@ $('fitBtn').addEventListener('click',()=>{const k=$('fitSel').value;if(!sel||!T[
 $('gunBtn').addEventListener('click',()=>{if(sel&&sel.guns<MAXG)buy(gunCost(sel),t=>{t.guns++;});});
 $('scopeBtn').addEventListener('click',()=>{if(sel&&sel.scope<MAXM)buy(scopeCost(sel),t=>{t.scope++;});});
 $('loadBtn').addEventListener('click',()=>{if(sel&&sel.loader<MAXM)buy(loadCost(sel),t=>{t.loader++;});});
+$('prioBtn').addEventListener('click',()=>{if(!sel)return;const i=TMODES.indexOf(sel.tm||'first');sel.tm=TMODES[(i+1)%TMODES.length];hudKey='';say(T[sel.type].name+' now targets the '+{first:'alien furthest along the road',last:'alien furthest back',strong:'alien with the most health',weak:'alien with the least health',close:'closest alien'}[sel.tm]+'.');keep();});
 $('aimBtn').addEventListener('click',()=>{if(!sel||T[sel.type].mode!=='bomber')return;aiming=sel;hudKey='';say('Tap the map where the bomber should drop its bombs.');});
 $('sellBtn').addEventListener('click',()=>{if(!sel||S.over)return;S.money+=sellVal(sel);S.towers=S.towers.filter(t=>t!==sel);sel=null;keep();});
 $('waveBtn').addEventListener('click',()=>{wakeAudio();startWave();});
@@ -910,7 +918,7 @@ function frame(ts){
 }
 let failed=false;
 function fail(where,e){if(failed)return;failed=true;const m=$(mode==='versus'?'vsStatus':'msg');m.style.color=C.alien;m.textContent='Game error in '+where+' (build '+BUILD+'): '+(e&&e.message||e);}
-const BUILD=26;
+const BUILD=27;
 window.addEventListener('error',e=>fail('page',e.error||e.message));
 /* ---------- Two-player versus: two boards on one screen ---------- */
 let mode='campaign',camp=null,VS=null;
@@ -1034,7 +1042,7 @@ const freshSnap=(l,carry,bought)=>({meta:JSON.parse(JSON.stringify(META)),level:
 function snap(){
   const S=campaignS();
   if(S.over)return S.result==='cleared'?freshSnap(S.level+1,S.money,S.bought):S.result==='won'?freshSnap(1):freshSnap(S.level,S.carry,S.bought0);
-  return{meta:JSON.parse(JSON.stringify(META)),free:S.free||null,lost:S.lost||0,level:S.level,carry:S.carry||0,bought:S.bought||0,bought0:S.bought0||0,wave:S.active?S.wave-1:S.wave,money:S.money,lives:S.lives,towers:S.towers.map(t=>({type:t.type,c:t.c,r:t.r,guns:t.guns,scope:t.scope,loader:t.loader,spent:t.spent,tx:t.tx,ty:t.ty}))};
+  return{meta:JSON.parse(JSON.stringify(META)),free:S.free||null,lost:S.lost||0,level:S.level,carry:S.carry||0,bought:S.bought||0,bought0:S.bought0||0,wave:S.active?S.wave-1:S.wave,money:S.money,lives:S.lives,towers:S.towers.map(t=>({type:t.type,c:t.c,r:t.r,guns:t.guns,scope:t.scope,loader:t.loader,spent:t.spent,tm:t.tm,tx:t.tx,ty:t.ty}))};
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(snap()));}catch(e){}}
 function readSave(){try{const d=JSON.parse(localStorage.getItem(KEY));return d&&Array.isArray(d.towers)&&d.level>=1?d:null;}catch(e){return null;}}
@@ -1050,7 +1058,7 @@ function apply(d){
   for(const t of d.towers){
     if(!T[t.type]||!(t.c>=0&&t.c<COLS&&t.r>=0&&t.r<ROWS)||(road.has(t.c+','+t.r)&&!T[t.type].onRoad))continue;
     if(!canPlace(t.type,t.c,t.r)){S.money+=(+t.spent||0);continue;}
-    const n=mkTower(t.type,t.c,t.r);n.guns=cl(t.guns,1,MAXG,1);n.scope=cl(t.scope,0,MAXM,0);n.loader=cl(t.loader,0,MAXM,0);n.spent=+t.spent||n.spent;if(isFinite(t.tx)&&isFinite(t.ty)){n.tx=+t.tx;n.ty=+t.ty;}S.towers.push(n);
+    const n=mkTower(t.type,t.c,t.r);n.guns=cl(t.guns,1,MAXG,1);n.scope=cl(t.scope,0,MAXM,0);n.loader=cl(t.loader,0,MAXM,0);n.spent=+t.spent||n.spent;if(TMODES.indexOf(t.tm)>0)n.tm=t.tm;if(isFinite(t.tx)&&isFinite(t.ty)){n.tx=+t.tx;n.ty=+t.ty;}S.towers.push(n);
   }
 }
 let started=false;
