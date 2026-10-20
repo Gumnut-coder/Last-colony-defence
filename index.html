@@ -115,6 +115,7 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
 .side .mods{display:grid;grid-template-columns:1fr 1fr;gap:6px;grid-column:1/-1}
 .side button{aspect-ratio:1;width:100%;padding:3px;font-size:12.5px;line-height:1.2;white-space:pre-line;display:flex;align-items:center;justify-content:center;text-align:center}
 .side select{grid-column:1/-1;width:100%;padding:7px 6px;font-size:13px}
+.side .prio{border-color:var(--cryo);color:var(--cryo);font-weight:600}
 .side .lbl{grid-column:1/-1;margin:2px 0 0}
 #unitInfo{grid-column:1/-1;font-size:13px;color:var(--muted);line-height:1.3}
 #next{grid-column:1/-1;font-size:13px;line-height:1.3;margin-top:2px}
@@ -157,14 +158,14 @@ canvas.vf{display:block;width:100%;max-width:100%;aspect-ratio:8/5;border-radius
     <aside class="side" id="leftSide" aria-label="Selected tower">
       <p id="unitInfo">Tap a tower to modify it.</p>
       <div class="mods" id="mods" hidden>
+        <button id="prioBtn" type="button" class="prio">Target
+First</button>
         <button id="gunBtn" type="button">Add gun</button>
         <button id="scopeBtn" type="button">Scope</button>
         <button id="loadBtn" type="button">Loader</button>
         <label class="lbl" for="fitSel">Refit to</label>
         <select id="fitSel"></select>
         <button id="fitBtn" type="button">Refit</button>
-        <button id="prioBtn" type="button">Target
-First</button>
         <button id="aimBtn" type="button" hidden>Set bomb target</button>
         <button id="sellBtn" type="button">Sell</button>
       </div>
@@ -196,7 +197,7 @@ First</button>
 
   <div class="armoury" id="armoury"></div>
 
-  <p class="help">There are 400 levels, each with its own road and 10 waves. Clear all 10 to move on. From level 201 the map is wider and aliens come down two roads, one from the left and one from the bottom: drag the map sideways (or use the arrow keys) to see it all. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. Select a tower and press Target to choose what it shoots first: the first alien on the road, the last, the strongest, the weakest or the closest. Minefields are the only thing you can build on the road: each holds a few mines that blow up under ground aliens and re-arm over time. The Bomber flies to a spot you choose and carpet-bombs it: after building one, tap the map to set its target, or use Set bomb target to move it. Jet fighters also carry two missiles they fire at nearby aliens. You start with 17 weapons and a new one unlocks every 5 levels, 37 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Clearing a level earns up to 5 stars: 5 for losing no colonists, fewer the more you lose. Stars earn a random reward: bonus credits, an extra colonist, a little more damage for every weapon (up to +25% in total), or a free weapon to build at the start of the next level. A perfect 5-star level gives two rewards. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 27, offline edition.</p>
+  <p class="help">There are 400 levels, each with its own road and 10 waves. Clear all 10 to move on. From level 201 the map is wider and aliens come down two roads, one from the left and one from the bottom: drag the map sideways (or use the arrow keys) to see it all. Eleven kinds of alien join in as you climb: wasps fly straight over the map, shellbacks need armour-piercing weapons, menders heal the aliens around them, dropships fly over and drop swarmlings onto the road, brood mothers burst into swarmlings, and titans are bosses. Every tower can carry up to 4 guns for more damage, a scope for range and a loader for speed, and can be refitted to any weapon you have unlocked. Each weapon is marked Ground, Air or Ground+Air: flying aliens (wasps and dropships) can only be hit by weapons that reach the air. Select a tower and press Target to choose what it shoots first: the first alien on the road, the last, the strongest, the weakest or the closest. Minefields are the only thing you can build on the road: each holds a few mines that blow up under ground aliens and re-arm over time. The Bomber flies to a spot you choose and carpet-bombs it: after building one, tap the map to set its target, or use Set bomb target to move it. Jet fighters also carry two missiles they fire at nearby aliens. You start with 17 weapons and a new one unlocks every 5 levels, 37 in all by level 100. From level 105, every 5 levels raises the damage of all your weapons by 3% instead. Your colony starts each level one colonist bigger (20 on level 1, 21 on level 2 and so on), and you can buy extra colonists with credits. Bought colonists stay with you on later levels, and each one costs 8% more than the last. Clearing a level earns up to 5 stars: 5 for losing no colonists, fewer the more you lose. Stars earn a random reward: bonus credits, an extra colonist, a little more damage for every weapon (up to +25% in total), or a free weapon to build at the start of the next level. A perfect 5-star level gives two rewards. Credits you don't spend carry into the next level, but they make that level's aliens tougher: carrying an amount equal to the level's starting credits adds 10% to alien health. Progress saves in this browser. Keys: 1 to 9 pick a tower, Space sends the wave, P pauses. Boats and warships can only be built on the blue lakes, and nothing else can. Boats, warships and tanks move about by themselves, and jets fly the whole map. Tanks, jets and warships are re-equipped with a newer US model every 5 levels, gaining damage each time: tanks from the M1917 to the M1A2 SEPv3 Abrams, jets from the P-80 to the F-35, warships from USS Monitor to USS Zumwalt. Build 28, offline edition.</p>
   </div>
 </div>
 
@@ -918,7 +919,7 @@ function frame(ts){
 }
 let failed=false;
 function fail(where,e){if(failed)return;failed=true;const m=$(mode==='versus'?'vsStatus':'msg');m.style.color=C.alien;m.textContent='Game error in '+where+' (build '+BUILD+'): '+(e&&e.message||e);}
-const BUILD=27;
+const BUILD=28;
 window.addEventListener('error',e=>fail('page',e.error||e.message));
 /* ---------- Two-player versus: two boards on one screen ---------- */
 let mode='campaign',camp=null,VS=null;
